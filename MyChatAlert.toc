@@ -1,6 +1,6 @@
 ## Interface: 11302
 ## Title: My Chat Alert
-## Version: 1.2.0
+## Version: 1.3.0
 ## Notes: Alerts based on keywords in a chat channel
 ## Author: inSpired_TV
 

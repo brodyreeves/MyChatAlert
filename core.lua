@@ -15,9 +15,9 @@ do
 
         if event == "CHAT_MSG_CHANNEL" and channel == addon.db.channel then
             for k, v in pairs(words) do
-                if message:lower():find(v) then -- Alert message
-                    if addon.db.sound then PlaySound(addon.db.sound)
-                    else print(colorG .. "LFG KEYWORD " .. colorY .. v .. colorG .. " seen") end
+                if message:lower():find(v:lower()) then -- Alert message
+                    if addon.db.soundOn then PlaySound(addon.db.sound) end
+                    if addon.db.printOn then print(colorG .. "LFG KEYWORD " .. colorY .. v .. colorG .. " seen") end
                     break
                 end
             end
@@ -32,6 +32,10 @@ do
         if type(MyChatAlertDB) ~= "table" then MyChatAlertDB = {} end
         local sv = MyChatAlertDB
         if type(sv.enable) ~= "boolean" then sv.enable = true end
+        if type(sv.soundOn) ~= "boolean" then sv.soundOn = true end
+        if type(sv.printOn) ~= "boolean" then sv.printOn = false end
+        if type(sv.channel) ~= "string" then sv.channel = "4. LookingForGroup" end
+        if type(sv.sound) ~= "string" then sv.sound = "881" end
         if type(sv.words) ~= "table" then sv.words = {} end
         addon.db = sv
 
