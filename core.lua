@@ -16,8 +16,8 @@ do
         if event == "CHAT_MSG_CHANNEL" and channel == addon.db.channel then
             for k, v in pairs(words) do
                 if message:lower():find(v) then -- Alert message
-                    --print(colorG .. "LFG KEYWORD " .. colorY .. v .. colorG .. " in " .. colorW .. message)
-                    PlaySound(881) -- play alert sound on match
+                    if addon.db.sound then PlaySound(addon.db.sound)
+                    else print(colorG .. "LFG KEYWORD " .. colorY .. v .. colorG .. " seen") end
                     break
                 end
             end

@@ -51,17 +51,50 @@ frame:SetScript("OnShow", function(frame)
     channelEditBox:SetHeight(10)
     channelEditBox:SetWidth(150)
     channelEditBox:SetAutoFocus(false)
-    if addon.db.channel then channelEditBox:SetText(addon.db.channel) end
+    if addon.db.channel then channelEditBox:SetText(addon.db.channel)
+    else channelEditBox:SetText("Set_Channel") end
 
     -- set channel button
-    local keywordAddButton = CreateFrame("Button", "MyChatAlertChannelSetButton", frame, "UIPanelButtonTemplate")
-    keywordAddButton:SetPoint("LEFT", channelEditBox, "RIGHT", 0, 0)
-    keywordAddButton:SetText("Set")
-    keywordAddButton:SetScript("OnClick", function()
+    local channelSetButton = CreateFrame("Button", "MyChatAlertChannelSetButton", frame, "UIPanelButtonTemplate")
+    channelSetButton:SetPoint("LEFT", channelEditBox, "RIGHT", 0, 0)
+    channelSetButton:SetText("Set")
+    channelSetButton:SetScript("OnClick", function()
         local channel = channelEditBox:GetText()
-        if channel and channel ~= "" then
+        if channel and channel ~= "" and channel ~= "Set_Channel" then
             addon.db.channel = channel
             channelEditBox:ClearFocus()
+        end
+    end)
+
+    -- editbox to set sound
+    local soundEditBox = CreateFrame("EditBox", "MyChatAlertSoundEditBox", frame, "InputBoxTemplate")
+    soundEditBox:SetPoint("LEFT", channelEditBox, "RIGHT", 50, 0)
+    soundEditBox:SetHeight(10)
+    soundEditBox:SetWidth(150)
+    soundEditBox:SetAutoFocus(false)
+    if addon.db.sound then soundEditBox:SetText(addon.db.sound)
+    else soundEditBox:SetText("Set_Sound") end
+
+    -- set sound button
+    local soundSetButton = CreateFrame("Button", "MyChatAlertSoundSetButton", frame, "UIPanelButtonTemplate")
+    soundSetButton:SetPoint("LEFT", soundEditBox, "RIGHT", 0, 0)
+    soundSetButton:SetText("Set")
+    soundSetButton:SetScript("OnClick", function()
+        local sound = soundEditBox:GetText()
+        if sound and sound ~= "" and sound ~= "Set_Sound" then
+            addon.db.sound = sound
+            soundEditBox:ClearFocus()
+        end
+    end)
+
+    -- test sound button
+    local soundTestButton = CreateFrame("Button", "MyChatAlertSoundTestButton", frame, "UIPanelButtonTemplate")
+    soundTestButton:SetPoint("LEFT", soundSetButton, "RIGHT", 0, 0)
+    soundTestButton:SetText("Test")
+    soundTestButton:SetScript("OnClick", function()
+        local sound = soundEditBox:GetText()
+        if sound and sound ~= "" and sound ~= "Set_Sound" then
+            PlaySound(sound)
         end
     end)
 
