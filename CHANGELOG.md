@@ -1,5 +1,8 @@
 # MyChatAlert
 
+## PENDING
+- Reworded printed alert
+
 ## v1.3.0
 - Sound used for alert is now configurable
 - New options to toggle sound alerts and printed alerts

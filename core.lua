@@ -17,7 +17,7 @@ do
             for k, v in pairs(words) do
                 if message:lower():find(v:lower()) then -- Alert message
                     if addon.db.soundOn then PlaySound(addon.db.sound) end
-                    if addon.db.printOn then print(colorG .. "LFG KEYWORD " .. colorY .. v .. colorG .. " seen") end
+                    if addon.db.printOn then print(colorG .. "Keyword <" .. colorY .. v .. colorG .. "> seen") end
                     break
                 end
             end
