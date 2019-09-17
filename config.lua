@@ -45,19 +45,39 @@ frame:SetScript("OnShow", function(frame)
     enable:SetChecked(addon.db.enable)
     enable:SetPoint("TOPLEFT", title, "BOTTOMLEFT", -2, -16)
 
+    -- editbox to set channel
+    local channelEditBox = CreateFrame("EditBox", "MyChatAlertChannelEditBox", frame, "InputBoxTemplate")
+    channelEditBox:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 8, -8)
+    channelEditBox:SetHeight(10)
+    channelEditBox:SetWidth(150)
+    channelEditBox:SetAutoFocus(false)
+    if addon.db.channel then channelEditBox:SetText(addon.db.channel) end
+
+    -- set channel button
+    local keywordAddButton = CreateFrame("Button", "MyChatAlertChannelSetButton", frame, "UIPanelButtonTemplate")
+    keywordAddButton:SetPoint("LEFT", channelEditBox, "RIGHT", 0, 0)
+    keywordAddButton:SetText("Set")
+    keywordAddButton:SetScript("OnClick", function()
+        local channel = channelEditBox:GetText()
+        if channel and channel ~= "" then
+            addon.db.channel = channel
+            channelEditBox:ClearFocus()
+        end
+    end)
+
     -- editbox to add words
     local keywordEditBox = CreateFrame("EditBox", "MyChatAlertKeywordEditBox", frame, "InputBoxTemplate")
-    keywordEditBox:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 10, -10)
+    keywordEditBox:SetPoint("TOPLEFT", channelEditBox, "BOTTOMLEFT", 0, -15)
     keywordEditBox:SetHeight(10)
     keywordEditBox:SetWidth(150)
     keywordEditBox:SetAutoFocus(false)
 
     -- add button
     local keywordAddButton = CreateFrame("Button", "MyChatAlertKeywordAddButton", frame, "UIPanelButtonTemplate")
-    keywordAddButton:SetPoint("LEFT", keywordEditBox, "RIGHT", 0, -1)
+    keywordAddButton:SetPoint("LEFT", keywordEditBox, "RIGHT", 0, 0)
     keywordAddButton:SetText("Add")
     keywordAddButton:SetScript("OnClick", function()
-        word = keywordEditBox:GetText()
+        local word = keywordEditBox:GetText()
         if word and word ~= "" then
             tinsert(addon.db.words, keywordEditBox:GetText())
             keywordEditBox:ClearFocus()

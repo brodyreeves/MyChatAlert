@@ -1,10 +1,10 @@
 ## Interface: 11302
 ## Title: My Chat Alert
-## Version: 1.0.0
+## Version: 1.1.0
 ## Notes: Alerts based on keywords in a chat channel
 ## Author: inSpired_TV
 
-## SavedVariables: MyChatAlertDB
+## SavedVariablesPerCharacter: MyChatAlertDB
 
 core.lua
 config.lua
