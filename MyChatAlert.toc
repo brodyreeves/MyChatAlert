@@ -4,14 +4,14 @@
 ## Notes: Alerts based on keywords in a chat channel
 ## Author: inSpired_TV
 
-## OptionalDeps: Ace3
+## OptionalDeps: Ace3, LibDBIcon-1.0
 ## X-Embeds: Ace3
 
+## SavedVariables: MyChatAlertLDBIconDB
 ## SavedVariablesPerCharacter: MyChatAlertDB
 
-#@no-lib-strip@
 embeds.xml
-#@end-no-lib-strip@
 
 core.lua
 config.lua
+minimap.lua

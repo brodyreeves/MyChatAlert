@@ -2,6 +2,7 @@
 
 ## v2.0.0
 - Reworked interface via ace3
+- Added an alert frame that will display information of alerted messages
 
 ## v1.4.0
 - Reworded printed alert
