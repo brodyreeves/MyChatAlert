@@ -11,14 +11,17 @@ do
         end
         local colorG, colorY, colorW = "|cFF00FF00", "|cFFFFFF00", "|r" -- text color flags
 
+        local channels = addon.db.channels
         local words = addon.db.words
 
-        if event == "CHAT_MSG_CHANNEL" and channel == addon.db.channel then
-            for k2, word in pairs(words) do
-                if message:lower():find(word:lower()) then -- Alert message
-                    if addon.db.soundOn then PlaySound(addon.db.sound) end
-                    if addon.db.printOn then print(colorG .. "Keyword <" .. colorY .. word .. colorG .. "> seen from " .. colorY .. "[" .. author .. "]" .. colorG .. ": " .. colorY .. message) end
-                    break
+        for k, ch in pairs(channels) do
+            if event == "CHAT_MSG_CHANNEL" and channel:lower() == ch:lower() then
+                for k2, word in pairs(words) do
+                    if message:lower():find(word:lower()) then -- Alert message
+                        if addon.db.soundOn then PlaySound(addon.db.sound) end
+                        if addon.db.printOn then print(colorG .. "Keyword <" .. colorY .. word .. colorG .. "> seen from " .. colorY .. "[" .. author .. "]" .. colorG .. ": " .. colorY .. message) end
+                        break
+                    end
                 end
             end
         end
@@ -34,7 +37,7 @@ do
         if type(sv.enable) ~= "boolean" then sv.enable = true end
         if type(sv.soundOn) ~= "boolean" then sv.soundOn = true end
         if type(sv.printOn) ~= "boolean" then sv.printOn = false end
-        if type(sv.channel) ~= "string" then sv.channel = "4. LookingForGroup" end
+        if type(sv.channels) ~= "table" then sv.channels = {} end
         if type(sv.sound) ~= "string" then sv.sound = "881" end
         if type(sv.words) ~= "table" then sv.words = {} end
         addon.db = sv
