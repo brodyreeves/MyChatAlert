@@ -1,5 +1,8 @@
 # MyChatAlert
 
+## v2.0.0
+- Reworked interface via ace3
+
 ## v1.4.0
 - Reworded printed alert
 
