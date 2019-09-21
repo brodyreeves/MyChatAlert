@@ -4,7 +4,7 @@ _G[addonName] = addon
 
 do
     local alertFrame = CreateFrame("Frame") -- creates frame for alert
-    alertFrame:SetScript("OnEvent", function(self, event, message, _, _, channel)
+    alertFrame:SetScript("OnEvent", function(self, event, message, author, _, channel)
         if not addon.db.enable then
             self:UnregisterEvent("CHAT_MSG_CHANNEL")
             return
@@ -14,10 +14,10 @@ do
         local words = addon.db.words
 
         if event == "CHAT_MSG_CHANNEL" and channel == addon.db.channel then
-            for k, v in pairs(words) do
-                if message:lower():find(v:lower()) then -- Alert message
+            for k2, word in pairs(words) do
+                if message:lower():find(word:lower()) then -- Alert message
                     if addon.db.soundOn then PlaySound(addon.db.sound) end
-                    if addon.db.printOn then print(colorG .. "Keyword <" .. colorY .. v .. colorG .. "> seen") end
+                    if addon.db.printOn then print(colorG .. "Keyword <" .. colorY .. word .. colorG .. "> seen from " .. colorY .. "[" .. author .. "]" .. colorG .. ": " .. colorY .. message) end
                     break
                 end
             end

@@ -1,6 +1,6 @@
 # MyChatAlert
 
-## PENDING
+## v1.4.0
 - Reworded printed alert
 
 ## v1.3.0
