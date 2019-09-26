@@ -26,7 +26,7 @@ function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel)
     -- optional globalignorelist check
     if self.db.profile.globalignorelist then
         for i = 1, #GlobalIgnoreDB.ignoreList do
-            if message:find("-" .. GlobalIgnoreDB.ignoreList[i], 1, true) ~= nil then -- found in ignore list
+            if author == GlobalIgnoreDB.ignoreList[i] then -- found in ignore list
                 return
             end
         end
