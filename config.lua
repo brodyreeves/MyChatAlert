@@ -6,6 +6,7 @@ MyChatAlert.defaults = {
         printOn = true,
         channels = {},
         words = {},
+        globalIgnoreListFilter = false,
     }
 }
 
@@ -151,5 +152,19 @@ MyChatAlert.options = {
                 },
             },
         },
-    }
+        miscOptions = {
+            name = "Misc Options",
+            type = "group", inline = true, order = 6,
+            args = {
+                globalIgnoreListFilter = {
+                    name = "Filter with GlobalIgnoreList",
+                    desc = "Ignore messages from players on your ignore list",
+                    type = "toggle", order = 1, width = 1.15,
+                    get = function(info) return MyChatAlert.db.profile.globalIgnoreListFilter end,
+                    set = function(info, val) MyChatAlert.db.profile.globalIgnoreListFilter = val end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled end,
+                },
+            },
+        },
+    },
 }

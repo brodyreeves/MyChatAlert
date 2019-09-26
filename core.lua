@@ -23,6 +23,15 @@ end
 function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel)
     if author == UnitName("player") then return end -- don't do anything if it's your own message
 
+    -- optional globalignorelist check
+    if self.db.profile.globalignorelist then
+        for i = 1, #GlobalIgnoreDB.ignoreList do
+            if message:find("-" .. GlobalIgnoreDB.ignoreList[i], 1, true) ~= nil then -- found in ignore list
+                return
+            end
+        end
+    end
+
     for k, ch in pairs(self.db.profile.channels) do
         if event == "CHAT_MSG_CHANNEL" and channel:lower() == ch:lower() then
             for k2, word in pairs(self.db.profile.words) do
