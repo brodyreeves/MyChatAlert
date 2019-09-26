@@ -11,6 +11,18 @@ MyChatAlert.defaults = {
 
 local channelToDelete, wordToDelete = nil, nil -- used to store which respective table item to delete
 
+MyChatAlert.availableChannels = {}
+
+for i = 1, NUM_CHAT_WINDOWS do
+    local num, name = GetChannelName(i)
+    if num > 0 then -- number channel, e.g. 2. Trade - City
+        local channel = num .. ". " .. name
+        tinsert(MyChatAlert.availableChannels, channel)
+    else
+        tinsert(MyChatAlert.availableChannels, name)
+    end
+end
+
 MyChatAlert.options = {
     name = "MyChatAlert",
     handler = MyChatAlert,
@@ -63,21 +75,29 @@ MyChatAlert.options = {
                 },
             },
         },
-        alerts = {
-            name = "Alerts",
+        channels = {
+            name = "Channels",
             type = "group", inline = true, order = 4,
             args = {
+                pickChannel = {
+                    name = "Select New Channel",
+                    desc = "Select a channel to watch",
+                    type = "select", order = 1, width = 1,
+                    values = function() return MyChatAlert.availableChannels end,
+                    set = function(info, val) tinsert(MyChatAlert.db.profile.channels, MyChatAlert.availableChannels[val]) end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled end,
+                },
                 addChannel = {
                     name = "Add Channel",
                     desc = "Add a channel to watch from Ex: '4. LookingForGroup'",
-                    type = "input", order = 1,
+                    type = "input", order = 2,
                     set = function(info, val) if val and val ~= "" then tinsert(MyChatAlert.db.profile.channels, val) end end,
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
                 removeChannel = {
                     name = "Remove Channel",
                     desc = "Select a channel to remove from being watched",
-                    type = "select", order = 2, width = 1,
+                    type = "select", order = 3, width = 1,
                     values = function() return MyChatAlert.db.profile.channels end,
                     get = function(info) return channelToDelete end,
                     set = function(info, val) channelToDelete = val end,
@@ -86,7 +106,7 @@ MyChatAlert.options = {
                 removeChannelButton = {
                     name = "Remove Channel",
                     desc = "Remove selected channel from being watched",
-                    type = "execute", order = 3, width = 0.8,
+                    type = "execute", order = 4, width = 0.8,
                     func = function()
                         if channelToDelete then
                             tremove(MyChatAlert.db.profile.channels, channelToDelete)
@@ -95,17 +115,23 @@ MyChatAlert.options = {
                     end,
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
+            },
+        },
+        keywords = {
+            name = "Keywords",
+            type = "group", inline = true, order = 5,
+            args = {
                 addKeyword = {
                     name = "Add Keyword",
                     desc = "Add a keyword to watch for",
-                    type = "input", order = 4,
+                    type = "input", order = 5,
                     set = function(info, val) if val and val ~= "" then tinsert(MyChatAlert.db.profile.words, val) end end,
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
                 removeKeyword = {
                     name = "Remove Keyword",
                     desc = "Select a keyword to remove from being watched for",
-                    type = "select", order = 5, width = 1,
+                    type = "select", order = 6, width = 1,
                     values = function() return MyChatAlert.db.profile.words end,
                     get = function(info) return wordToDelete end,
                     set = function(info, val) wordToDelete = val end,
@@ -114,7 +140,7 @@ MyChatAlert.options = {
                 removeKeywordButton = {
                     name = "Remove Keyword",
                     desc = "Remove selected keyword from being watched for",
-                    type = "execute", order = 6, width = 0.8,
+                    type = "execute", order = 7, width = 0.8,
                     func = function()
                         if wordToDelete then
                             tremove(MyChatAlert.db.profile.words, wordToDelete)
