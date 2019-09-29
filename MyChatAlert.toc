@@ -1,10 +1,17 @@
 ## Interface: 11302
 ## Title: My Chat Alert
-## Version: 1.4.0
+## Version: 2.1.0
 ## Notes: Alerts based on keywords in a chat channel
 ## Author: inSpired_TV
 
+## OptionalDeps: Ace3, LibDBIcon-1.0
+## X-Embeds: Ace3
+
+## SavedVariables: MyChatAlertLDBIconDB
 ## SavedVariablesPerCharacter: MyChatAlertDB
+
+embeds.xml
 
 core.lua
 config.lua
+minimap.lua

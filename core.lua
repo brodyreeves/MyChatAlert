@@ -1,52 +1,122 @@
-local addonName, addon = ...
+MyChatAlert = LibStub("AceAddon-3.0"):NewAddon("MyChatAlert", "AceConsole-3.0", "AceEvent-3.0")
 
-_G[addonName] = addon
+local AceGUI = LibStub("AceGUI-3.0")
+local C_G, C_R, C_Y, C_W = "|cFF00FF00", "|cffff0000", "|cFFFFFF00", "|r" -- text color flags
 
-do
-    local alertFrame = CreateFrame("Frame") -- creates frame for alert
-    alertFrame:SetScript("OnEvent", function(self, event, message, author, _, channel)
-        if not addon.db.enable then
-            self:UnregisterEvent("CHAT_MSG_CHANNEL")
-            return
-        end
-        local colorG, colorY, colorW = "|cFF00FF00", "|cFFFFFF00", "|r" -- text color flags
+function MyChatAlert:OnInitialize()
+    -- Called when the addon is loaded
+    self.db = LibStub("AceDB-3.0"):New("MyChatAlertDB", self.defaults, true)
 
-        local channels = addon.db.channels
-        local words = addon.db.words
+    LibStub("AceConfig-3.0"):RegisterOptionsTable("MyChatAlert", self.options)
+    self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("MyChatAlert", "MyChatAlert")
+end
 
-        for k, ch in pairs(channels) do
-            if event == "CHAT_MSG_CHANNEL" and channel:lower() == ch:lower() then
-                for k2, word in pairs(words) do
-                    if message:lower():find(word:lower()) then -- Alert message
-                        if addon.db.soundOn then PlaySound(addon.db.sound) end
-                        if addon.db.printOn then print(colorG .. "Keyword <" .. colorY .. word .. colorG .. "> seen from " .. colorY .. "[" .. author .. "]" .. colorG .. ": " .. colorY .. message) end
-                        break
-                    end
-                end
+function MyChatAlert:OnEnable()
+    if self.db.profile.enabled then self:RegisterEvent("CHAT_MSG_CHANNEL") end
+end
+
+function MyChatAlert:OnDisable()
+    self:UnregisterEvent("CHAT_MSG_CHANNEL")
+end
+
+-- Event Handlers
+function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel)
+    if author == UnitName("player") then return end -- don't do anything if it's your own message
+
+    -- optional globalignorelist check
+    if self.db.profile.globalignorelist then
+        for i = 1, #GlobalIgnoreDB.ignoreList do
+            if author == GlobalIgnoreDB.ignoreList[i] then -- found in ignore list
+                return
             end
         end
-    end)
+    end
 
-    local eventFrame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
-    eventFrame:SetScript("OnEvent", function(self, event, loadedAddon)
-        if loadedAddon ~= addonName then return end
-        self:UnregisterEvent("ADDON_LOADED")
+    for k, ch in pairs(self.db.profile.channels) do
+        if event == "CHAT_MSG_CHANNEL" and channel:lower() == ch:lower() then
+            for k2, word in pairs(self.db.profile.words) do
+                if message:lower():find(word:lower()) then -- Alert message
+                    if self.db.profile.soundOn then PlaySound(self.db.profile.sound) end
+                    if self.db.profile.printOn then
+                        LibStub("AceConsole-3.0"):Print(C_G .. "Keyword <" .. C_Y .. word .. C_G .. "> seen from " .. C_Y .. "[" .. author .. "]" .. C_G .. ": " .. C_Y .. message)
+                    end
+                    self:AddAlert(word, author, message)
+                    break -- matched the message so stop looping
+                end
+            end
+            break -- matched the channel so stop looping
+        end
+    end
+end
 
-        if type(MyChatAlertDB) ~= "table" then MyChatAlertDB = {} end
-        local sv = MyChatAlertDB
-        if type(sv.enable) ~= "boolean" then sv.enable = true end
-        if type(sv.soundOn) ~= "boolean" then sv.soundOn = true end
-        if type(sv.printOn) ~= "boolean" then sv.printOn = false end
-        if type(sv.channels) ~= "table" then sv.channels = {} end
-        if type(sv.sound) ~= "string" then sv.sound = "881" end
-        if type(sv.words) ~= "table" then sv.words = {} end
-        addon.db = sv
+MyChatAlert.frameOn = false
+MyChatAlert.alerts = {}
 
-        self:SetScript("OnEvent", nil)
-    end)
+function MyChatAlert:AddAlert(word, author, msg) -- makes sure no more than 15 alerts are stored
+    if #self.alerts == 15 then tremove(self.alerts, 1) end -- remove first/oldest alert
+    tinsert(self.alerts, {word = word, author = author, msg = msg})
+end
 
-    alertFrame:RegisterEvent("CHAT_MSG_CHANNEL") -- register with chat message event
-    addon.alerts = alertFrame
-    eventFrame:RegisterEvent("ADDON_LOADED")
-    addon.frame = eventFrame
+function MyChatAlert:ClearAlerts()
+    self.alerts = {}
+end
+
+function MyChatAlert:ShowDisplay()
+    if not self.frameOn then
+        local alertFrame = AceGUI:Create("Frame")
+        alertFrame:SetTitle("MyChatAlert")
+        alertFrame:SetStatusText("Number of alerts: " .. #self.alerts)
+        alertFrame:SetCallback("OnClose", function(widget)
+            AceGUI:Release(widget)
+            self.frameOn = false
+        end)
+        alertFrame:SetLayout("Flow")
+
+        -- Column headers
+        local alertNum = AceGUI:Create("Label")
+        alertNum:SetText("#.")
+        alertNum:SetRelativeWidth(0.04)
+        alertFrame:AddChild(alertNum)
+
+        local alertWord = AceGUI:Create("Label")
+        alertWord:SetText("Keyword")
+        alertWord:SetRelativeWidth(0.13)
+        alertFrame:AddChild(alertWord)
+
+        local alertAuthor = AceGUI:Create("Label")
+        alertAuthor:SetText("Author")
+        alertAuthor:SetRelativeWidth(0.13)
+        alertFrame:AddChild(alertAuthor)
+
+        local alertMsg = AceGUI:Create("Label")
+        alertMsg:SetText("Message")
+        alertMsg:SetRelativeWidth(0.70)
+        alertFrame:AddChild(alertMsg)
+
+        -- list alerts
+        for k, alert in pairs(self.alerts) do
+            local alertNum = AceGUI:Create("Label")
+            alertNum:SetText(k .. ".")
+            alertNum:SetRelativeWidth(0.04)
+            alertFrame:AddChild(alertNum)
+
+            local alertWord = AceGUI:Create("Label")
+            alertWord:SetText(alert.word)
+            alertWord:SetRelativeWidth(0.13)
+            alertFrame:AddChild(alertWord)
+
+            local alertAuthor = AceGUI:Create("EditBox")
+            alertAuthor:SetText(alert.author)
+            alertAuthor:SetRelativeWidth(0.13)
+            alertAuthor:DisableButton(true)
+            alertFrame:AddChild(alertAuthor)
+
+            local alertMsg = AceGUI:Create("Label")
+            alertMsg:SetText(alert.msg)
+            alertMsg:SetRelativeWidth(0.7)
+            alertFrame:AddChild(alertMsg)
+        end
+    end
+
+    self.frameOn = true
 end

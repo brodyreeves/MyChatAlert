@@ -1,5 +1,14 @@
 # MyChatAlert
 
+## v2.1.0
+- Filter out messages that you send
+- Dropdown to select channels you're a member of when adding watched channels
+- Option to filter with GlobalIgnoreFilter
+
+## v2.0.0
+- Reworked interface via ace3
+- Added an alert frame that will display information of alerted messages
+
 ## v1.4.0
 - Reworded printed alert
 
