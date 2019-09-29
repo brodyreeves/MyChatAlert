@@ -1,5 +1,8 @@
 # MyChatAlert
 
+## v2.1.1
+- Fixed missing Libs
+
 ## v2.1.0
 - Filter out messages that you send
 - Dropdown to select channels you're a member of when adding watched channels
