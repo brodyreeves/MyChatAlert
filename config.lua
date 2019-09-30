@@ -29,7 +29,14 @@ MyChatAlert.options = {
                 else MyChatAlert:OnDisable() end
             end,
         },
-        -- TODO minimap toggle option
+        minimap = {
+            name = "Minimap",
+            desc = "Enable/disable the minimap",
+            type = "toggle", order = 2, width = "half",
+            get = function(info) return not MyChatAlertLDBIconDB.hide end,
+            set = function(info, val) MyChatAlert:MinimapToggle(val) end,
+            disabled = function() return not MyChatAlert.db.profile.enabled end,
+        },
         sound = {
             name = "Sound",
             type = "group", inline = true, order = 3,

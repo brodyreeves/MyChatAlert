@@ -42,7 +42,19 @@ local f = CreateFrame("Frame")
 f:SetScript("OnEvent", function()
     local icon = LibStub("LibDBIcon-1.0", true)
     if not icon then return end
-    if not MyChatAlertLDBIconDB then MyChatAlertLDBIconDB = {} end
+    if not MyChatAlertLDBIconDB then
+        MyChatAlertLDBIconDB = {}
+        MyChatAlertLDBIconDB.hide = false
+    end
     icon:Register(addonName, plugin, MyChatAlertLDBIconDB)
 end)
 f:RegisterEvent("PLAYER_LOGIN")
+
+function MyChatAlert:MinimapToggle(val)
+    MyChatAlertLDBIconDB.hide = not val
+    if MyChatAlertLDBIconDB.hide then
+        LibStub("LibDBIcon-1.0"):Hide(addonName)
+    else
+        LibStub("LibDBIcon-1.0"):Show(addonName)
+    end
+end

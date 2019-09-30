@@ -1,5 +1,8 @@
 # MyChatAlert
 
+## v2.1.3
+- Added option to toggle minimap button
+
 ## v2.1.2
 - Fixed empty channel dropdown
 
