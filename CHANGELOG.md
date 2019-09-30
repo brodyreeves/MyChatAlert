@@ -1,5 +1,8 @@
 # MyChatAlert
 
+## v2.1.2
+- Fixed empty channel dropdown
+
 ## v2.1.1
 - Fixed missing Libs
 

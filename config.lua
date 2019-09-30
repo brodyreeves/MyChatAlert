@@ -11,18 +11,7 @@ MyChatAlert.defaults = {
 }
 
 local channelToDelete, wordToDelete = nil, nil -- used to store which respective table item to delete
-
-MyChatAlert.availableChannels = {}
-
-for i = 1, NUM_CHAT_WINDOWS do
-    local num, name = GetChannelName(i)
-    if num > 0 then -- number channel, e.g. 2. Trade - City
-        local channel = num .. ". " .. name
-        tinsert(MyChatAlert.availableChannels, channel)
-    else
-        tinsert(MyChatAlert.availableChannels, name)
-    end
-end
+local availableChannels = {} -- cache available channels to quick-add
 
 MyChatAlert.options = {
     name = "MyChatAlert",
@@ -40,9 +29,10 @@ MyChatAlert.options = {
                 else MyChatAlert:OnDisable() end
             end,
         },
+        -- TODO minimap toggle option
         sound = {
             name = "Sound",
-            type = "group", inline = true, order = 2,
+            type = "group", inline = true, order = 3,
             args = {
                 soundOn = {
                     name = "Enable",
@@ -64,7 +54,7 @@ MyChatAlert.options = {
         },
         printing = {
             name = "Printing",
-            type = "group", inline = true, order = 3,
+            type = "group", inline = true, order = 4,
             args = {
                 printOn = {
                     name = "Enable",
@@ -78,14 +68,26 @@ MyChatAlert.options = {
         },
         channels = {
             name = "Channels",
-            type = "group", inline = true, order = 4,
+            type = "group", inline = true, order = 5,
             args = {
                 pickChannel = {
                     name = "Select New Channel",
                     desc = "Select a channel to watch",
                     type = "select", order = 1, width = 1,
-                    values = function() return MyChatAlert.availableChannels end,
-                    set = function(info, val) tinsert(MyChatAlert.db.profile.channels, MyChatAlert.availableChannels[val]) end,
+                    values = function()
+                        availableChannels = {} -- flush for recreation
+                        for i = 1, NUM_CHAT_WINDOWS do
+                            local num, name = GetChannelName(i)
+                            if num > 0 then -- number channel, e.g. 2. Trade - City
+                                local channel = num .. ". " .. name
+                                tinsert(availableChannels, channel)
+                            else
+                                tinsert(availableChannels, name)
+                            end
+                        end
+                        return availableChannels
+                    end,
+                    set = function(info, val) tinsert(MyChatAlert.db.profile.channels, availableChannels[val]) end,
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
                 addChannel = {
@@ -120,7 +122,7 @@ MyChatAlert.options = {
         },
         keywords = {
             name = "Keywords",
-            type = "group", inline = true, order = 5,
+            type = "group", inline = true, order = 6,
             args = {
                 addKeyword = {
                     name = "Add Keyword",
@@ -154,7 +156,7 @@ MyChatAlert.options = {
         },
         miscOptions = {
             name = "Misc Options",
-            type = "group", inline = true, order = 6,
+            type = "group", inline = true, order = 7,
             args = {
                 globalIgnoreListFilter = {
                     name = "Filter with GlobalIgnoreList",
