@@ -1,5 +1,8 @@
 # MyChatAlert
 
+## v2.2.1
+- zhCN support and curseforge locale injection
+
 ## v2.2.0
 - Locale support
 
