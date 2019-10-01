@@ -1,8 +1,9 @@
 ## Interface: 11302
 ## Title: My Chat Alert
-## Version: 2.2.0
+## Version: @project-version@
 ## Notes: Alerts based on keywords in a chat channel
 ## Author: inSpired_TV
+## X-Curse-Project-ID: 341693
 
 ## OptionalDeps: Ace3, LibDBIcon-1.0
 ## X-Embeds: Ace3
