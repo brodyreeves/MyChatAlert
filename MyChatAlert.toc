@@ -13,7 +13,7 @@
 
 embeds.xml
 
-Locale/enUS.lua
+Locales\Locales.xml
 
 core.lua
 config.lua

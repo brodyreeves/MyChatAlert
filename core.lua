@@ -1,7 +1,7 @@
 MyChatAlert = LibStub("AceAddon-3.0"):NewAddon("MyChatAlert", "AceConsole-3.0", "AceEvent-3.0")
 
 local AceGUI = LibStub("AceGUI-3.0")
-local L = LibStub("AceLocale-3.0"):GetLocale("MyChatAlert", false)
+local L = LibStub("AceLocale-3.0"):GetLocale("MyChatAlert")
 
 function MyChatAlert:OnInitialize()
     -- Called when the addon is loaded
@@ -110,6 +110,7 @@ function MyChatAlert:ShowDisplay()
             alertAuthor:SetRelativeWidth(0.13)
             alertAuthor:DisableButton(true)
             alertFrame:AddChild(alertAuthor)
+            --ChatFrame_OpenChat(format(L["/w %s "], alert.author)) -- api call to open chat with a whisper
 
             local alertMsg = AceGUI:Create("Label")
             alertMsg:SetText(alert.msg)

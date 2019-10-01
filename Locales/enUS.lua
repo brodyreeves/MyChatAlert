@@ -1,5 +1,6 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("MyChatAlert", "enUS", true)
 
+L["/w %s "] = "/w %s " -- string for whispering a player, needs a trailing space
 L["Add Channel"] = "Add Channel"
 L["Add Keyword"] = "Add Keyword"
 L["Add a channel to watch from Ex: '4. LookingForGroup'"] = "Add a channel to watch from Ex: '4. LookingForGroup'"
