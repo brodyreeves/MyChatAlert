@@ -65,7 +65,7 @@ function MyChatAlert:ShowDisplay()
     if not self.frameOn then
         local alertFrame = AceGUI:Create("Frame")
         alertFrame:SetTitle(L["MyChatAlert"])
-        alertFrame:SetStatusText(L["Number of alerts"] .. #self.alerts)
+        alertFrame:SetStatusText(format(L["Number of alerts: %s"], #self.alerts))
         alertFrame:SetCallback("OnClose", function(widget)
             AceGUI:Release(widget)
             self.frameOn = false
