@@ -1,5 +1,8 @@
 # MyChatAlert
 
+## v2.2.0
+- Locale support
+
 ## v2.1.3
 - Added option to toggle minimap button
 

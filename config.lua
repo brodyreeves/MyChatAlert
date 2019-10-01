@@ -1,3 +1,5 @@
+local L = LibStub("AceLocale-3.0"):GetLocale("MyChatAlert", false)
+
 MyChatAlert.defaults = {
     profile = {
         enabled = true,
@@ -14,13 +16,13 @@ local channelToDelete, wordToDelete = nil, nil -- used to store which respective
 local availableChannels = {} -- cache available channels to quick-add
 
 MyChatAlert.options = {
-    name = "MyChatAlert",
+    name = L["MyChatAlert"],
     handler = MyChatAlert,
     type = "group",
     args = {
         enable = {
-            name = "Enable",
-            desc = "Enable/disable the addon",
+            name = L["Enable"],
+            desc = L["Enable/disable the addon"],
             type = "toggle", order = 1, width = "half",
             get = function(info) return MyChatAlert.db.profile.enabled end,
             set = function(info, val)
@@ -30,28 +32,28 @@ MyChatAlert.options = {
             end,
         },
         minimap = {
-            name = "Minimap",
-            desc = "Enable/disable the minimap",
+            name = L["Minimap"],
+            desc = L["Enable/disable the minimap button"],
             type = "toggle", order = 2, width = "half",
             get = function(info) return not MyChatAlertLDBIconDB.hide end,
             set = function(info, val) MyChatAlert:MinimapToggle(val) end,
             disabled = function() return not MyChatAlert.db.profile.enabled end,
         },
         sound = {
-            name = "Sound",
+            name = L["Sound"],
             type = "group", inline = true, order = 3,
             args = {
                 soundOn = {
-                    name = "Enable",
-                    desc = "Enable/disable sound alerts",
+                    name = L["Enable"],
+                    desc = L["Enable/disable sound alerts"],
                     type = "toggle", order = 1, width = "half",
                     get = function(info) return MyChatAlert.db.profile.soundOn end,
                     set = function(info, val) MyChatAlert.db.profile.soundOn = val end,
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
                 sound = {
-                    name = "Alert Sound",
-                    desc = "Sound id to play (can be browsed on Wowhead.com)",
+                    name = L["Alert Sound"],
+                    desc = L["Sound id to play (can be browsed on Wowhead.com)"],
                     type = "input", order = 2,
                     get = function(info) return MyChatAlert.db.profile.sound end,
                     set = function(info, val) if val and val ~= "" then MyChatAlert.db.profile.sound = val end end,
@@ -60,12 +62,12 @@ MyChatAlert.options = {
             },
         },
         printing = {
-            name = "Printing",
+            name = L["Printing"],
             type = "group", inline = true, order = 4,
             args = {
                 printOn = {
-                    name = "Enable",
-                    desc = "Enable/disable printed alerts",
+                    name = L["Enable"],
+                    desc = L["Enable/disable printed alerts"],
                     type = "toggle", order = 1, width = "half",
                     get = function(info) return MyChatAlert.db.profile.printOn end,
                     set = function(info, val) MyChatAlert.db.profile.printOn = val end,
@@ -74,12 +76,12 @@ MyChatAlert.options = {
             },
         },
         channels = {
-            name = "Channels",
+            name = L["Channels"],
             type = "group", inline = true, order = 5,
             args = {
                 pickChannel = {
-                    name = "Select New Channel",
-                    desc = "Select a channel to watch",
+                    name = L["Select New Channel"],
+                    desc = L["Select a channel to watch"],
                     type = "select", order = 1, width = 1,
                     values = function()
                         availableChannels = {} -- flush for recreation
@@ -98,15 +100,15 @@ MyChatAlert.options = {
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
                 addChannel = {
-                    name = "Add Channel",
-                    desc = "Add a channel to watch from Ex: '4. LookingForGroup'",
+                    name = L["Add Channel"],
+                    desc = L["Add a channel to watch from Ex: '4. LookingForGroup'"],
                     type = "input", order = 2,
                     set = function(info, val) if val and val ~= "" then tinsert(MyChatAlert.db.profile.channels, val) end end,
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
                 removeChannel = {
-                    name = "Remove Channel",
-                    desc = "Select a channel to remove from being watched",
+                    name = L["Remove Channel"],
+                    desc = L["Select a channel to remove from being watched"],
                     type = "select", order = 3, width = 1,
                     values = function() return MyChatAlert.db.profile.channels end,
                     get = function(info) return channelToDelete end,
@@ -114,8 +116,8 @@ MyChatAlert.options = {
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
                 removeChannelButton = {
-                    name = "Remove Channel",
-                    desc = "Remove selected channel from being watched",
+                    name = L["Remove Channel"],
+                    desc = L["Remove selected channel from being watched"],
                     type = "execute", order = 4, width = 0.8,
                     func = function()
                         if channelToDelete then
@@ -128,19 +130,19 @@ MyChatAlert.options = {
             },
         },
         keywords = {
-            name = "Keywords",
+            name = L["Keywords"],
             type = "group", inline = true, order = 6,
             args = {
                 addKeyword = {
-                    name = "Add Keyword",
-                    desc = "Add a keyword to watch for",
+                    name = L["Add Keyword"],
+                    desc = L["Add a keyword to watch for"],
                     type = "input", order = 5,
                     set = function(info, val) if val and val ~= "" then tinsert(MyChatAlert.db.profile.words, val) end end,
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
                 removeKeyword = {
-                    name = "Remove Keyword",
-                    desc = "Select a keyword to remove from being watched for",
+                    name = L["Remove Keyword"],
+                    desc = L["Select a keyword to remove from being watched for"],
                     type = "select", order = 6, width = 1,
                     values = function() return MyChatAlert.db.profile.words end,
                     get = function(info) return wordToDelete end,
@@ -148,8 +150,8 @@ MyChatAlert.options = {
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
                 removeKeywordButton = {
-                    name = "Remove Keyword",
-                    desc = "Remove selected keyword from being watched for",
+                    name = L["Remove Keyword"],
+                    desc = L["Remove selected keyword from being watched for"],
                     type = "execute", order = 7, width = 0.8,
                     func = function()
                         if wordToDelete then
@@ -162,12 +164,12 @@ MyChatAlert.options = {
             },
         },
         miscOptions = {
-            name = "Misc Options",
+            name = L["Misc Options"],
             type = "group", inline = true, order = 7,
             args = {
                 globalIgnoreListFilter = {
-                    name = "Filter with GlobalIgnoreList",
-                    desc = "Ignore messages from players on your ignore list",
+                    name = L["Filter with GlobalIgnoreList"],
+                    desc = L["Ignore messages from players on your ignore list"],
                     type = "toggle", order = 1, width = 1.15,
                     get = function(info) return MyChatAlert.db.profile.globalIgnoreListFilter end,
                     set = function(info, val) MyChatAlert.db.profile.globalIgnoreListFilter = val end,

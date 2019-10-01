@@ -1,7 +1,7 @@
 MyChatAlert = LibStub("AceAddon-3.0"):NewAddon("MyChatAlert", "AceConsole-3.0", "AceEvent-3.0")
 
 local AceGUI = LibStub("AceGUI-3.0")
-local C_G, C_R, C_Y, C_W = "|cFF00FF00", "|cffff0000", "|cFFFFFF00", "|r" -- text color flags
+local L = LibStub("AceLocale-3.0"):GetLocale("MyChatAlert", false)
 
 function MyChatAlert:OnInitialize()
     -- Called when the addon is loaded
@@ -38,7 +38,7 @@ function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel)
                 if message:lower():find(word:lower()) then -- Alert message
                     if self.db.profile.soundOn then PlaySound(self.db.profile.sound) end
                     if self.db.profile.printOn then
-                        LibStub("AceConsole-3.0"):Print(C_G .. "Keyword <" .. C_Y .. word .. C_G .. "> seen from " .. C_Y .. "[" .. author .. "]" .. C_G .. ": " .. C_Y .. message)
+                        LibStub("AceConsole-3.0"):Print(format(L["Printed alert"], word, author, message))
                     end
                     self:AddAlert(word, author, message)
                     break -- matched the message so stop looping
@@ -64,8 +64,8 @@ end
 function MyChatAlert:ShowDisplay()
     if not self.frameOn then
         local alertFrame = AceGUI:Create("Frame")
-        alertFrame:SetTitle("MyChatAlert")
-        alertFrame:SetStatusText("Number of alerts: " .. #self.alerts)
+        alertFrame:SetTitle(L["MyChatAlert"])
+        alertFrame:SetStatusText(L["Number of alerts"] .. #self.alerts)
         alertFrame:SetCallback("OnClose", function(widget)
             AceGUI:Release(widget)
             self.frameOn = false
@@ -74,29 +74,29 @@ function MyChatAlert:ShowDisplay()
 
         -- Column headers
         local alertNum = AceGUI:Create("Label")
-        alertNum:SetText("#.")
+        alertNum:SetText(L["Number Header"])
         alertNum:SetRelativeWidth(0.04)
         alertFrame:AddChild(alertNum)
 
         local alertWord = AceGUI:Create("Label")
-        alertWord:SetText("Keyword")
+        alertWord:SetText(L["Keyword"])
         alertWord:SetRelativeWidth(0.13)
         alertFrame:AddChild(alertWord)
 
         local alertAuthor = AceGUI:Create("Label")
-        alertAuthor:SetText("Author")
+        alertAuthor:SetText(L["Author"])
         alertAuthor:SetRelativeWidth(0.13)
         alertFrame:AddChild(alertAuthor)
 
         local alertMsg = AceGUI:Create("Label")
-        alertMsg:SetText("Message")
+        alertMsg:SetText(L["Message"])
         alertMsg:SetRelativeWidth(0.70)
         alertFrame:AddChild(alertMsg)
 
         -- list alerts
         for k, alert in pairs(self.alerts) do
             local alertNum = AceGUI:Create("Label")
-            alertNum:SetText(k .. ".")
+            alertNum:SetText(k .. L["Number delimiter"])
             alertNum:SetRelativeWidth(0.04)
             alertFrame:AddChild(alertNum)
 

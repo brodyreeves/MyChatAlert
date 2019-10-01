@@ -1,4 +1,5 @@
 local addonName, addon = ...
+local L = LibStub("AceLocale-3.0"):GetLocale("MyChatAlert", false)
 
 local ldb = LibStub:GetLibrary("LibDataBroker-1.1", true)
 if not ldb then return end
@@ -28,14 +29,14 @@ end
 function plugin.OnTooltipShow(tt)
     tt:AddLine(format(TT_HEAD, addonName))
 
-    if #MyChatAlert.alerts == 0 then tt:AddLine(format(TT_LINE, "You have no alerts"))
-    elseif #MyChatAlert.alerts == 1 then tt:AddLine(format(TT_LINE, "You have |cFF00FF00" .. #MyChatAlert.alerts .. "|cFFCFCFCF alert"))
-    else tt:AddLine(format(TT_LINE, "You have |cFF00FF00" .. #MyChatAlert.alerts .. "|cFFCFCFCF alerts")) end
+    if #MyChatAlert.alerts == 0 then tt:AddLine(format(TT_LINE, L["You have no alerts"]))
+    elseif #MyChatAlert.alerts == 1 then tt:AddLine(format(TT_LINE, format(L["You have %s alert"], #MyChatAlert.alerts)))
+    else tt:AddLine(format(TT_LINE, format(L["You have %s alerts"], #MyChatAlert.alerts))) end
 
     tt:AddLine(" ") -- line break
-    tt:AddLine(format(TT_HINT, "Left-Click", "Show alert frame"))
-    tt:AddLine(format(TT_HINT, "Right-Click", "Clear alerts"))
-    tt:AddLine(format(TT_HINT, "Control+Right-Click", "Open options"))
+    tt:AddLine(format(TT_HINT, L["Left-Click"], L["Show alert frame"]))
+    tt:AddLine(format(TT_HINT, L["Right-Click"], L["Clear alerts"]))
+    tt:AddLine(format(TT_HINT, L["Control+Right-Click"], L["Open options"]))
 end
 
 local f = CreateFrame("Frame")
