@@ -1,7 +1,5 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("MyChatAlert", "enUS", true)
 
-local C_G, C_R, C_Y, C_W = "|cFF00FF00", "|cffff0000", "|cFFFFFF00", "|r" -- text color flags
-
 L["Add Channel"] = "Add Channel"
 L["Add Keyword"] = "Add Keyword"
 L["Add a channel to watch from Ex: '4. LookingForGroup'"] = "Add a channel to watch from Ex: '4. LookingForGroup'"
@@ -29,7 +27,7 @@ L["Number delimiter"] = "."
 L["Number Header"] = "#."
 L["Number of alerts"] = "Number of alerts: "
 L["Open options"] = "Open options"
-L["Printed alert"] = C_G .. "Keyword <" .. C_Y .. "%s" .. C_G .. "> seen from " .. C_Y .. "[%s]" .. C_G .. ": " .. C_Y .. "%s"
+L["Printed alert"] = "|cFF00FF00Keyword <|cFFFFFF00%s|cFF00FF00> seen from |cFFFFFF00[%s]|cFF00FF00: |cFFFFFF00%s"
 L["Printing"] = "Printing"
 L["Remove Channel"] = "Remove Channel"
 L["Remove Keyword"] = "Remove Keyword"
