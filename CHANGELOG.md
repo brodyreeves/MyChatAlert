@@ -2,8 +2,10 @@
 
 ## v2.3.0
 - Chat commands added
-  - `/msa` opens the options, `/msa alerts` shows the alert frame
+  - `/msa` opens the options
+  - `/msa alerts` shows the alert frame
 - Author names in the alert frame are now clickable to open a whisper to the author
+- Clicking the minimap button while alert frame is visible now refreshes (some weird-looking behavior if you have the max number of alerts cached and refreshed)
 
 ## v2.2.1
 - zhCN support and curseforge locale injection

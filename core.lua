@@ -66,7 +66,7 @@ MyChatAlert.frameOn = false
 MyChatAlert.alerts = {}
 
 function MyChatAlert:AddAlert(word, author, msg) -- makes sure no more than 15 alerts are stored
-    local MAX_ALERTS_TO_KEEP = 20
+    local MAX_ALERTS_TO_KEEP = 30
     if #self.alerts == MAX_ALERTS_TO_KEEP then tremove(self.alerts, 1) end -- remove first/oldest alert
 
     local auth = author
@@ -75,7 +75,7 @@ function MyChatAlert:AddAlert(word, author, msg) -- makes sure no more than 15 a
         auth = auth:sub(1, realmDelim - 1) -- don't want to include the '-' symbol
     end
 
-    tinsert(self.alerts, {word = word, author = auth, msg = msg})
+    tinsert(self.alerts, {word = word, author = auth, msg = msg, displayed = false})
 end
 
 function MyChatAlert:ClearAlerts()
@@ -83,68 +83,71 @@ function MyChatAlert:ClearAlerts()
 end
 
 function MyChatAlert:ShowDisplay()
-    if not self.frameOn then
+    local function newLabel(text, width, parent)
+        local frame = AceGUI:Create("Label")
+        frame:SetText(text)
+        frame:SetRelativeWidth(width)
+        parent:AddChild(frame)
+        return frame
+    end
+
+    local function newIntLabel(text, width, callback, parent)
+        local frame = AceGUI:Create("Label")
+        frame:SetText(text)
+        frame:SetRelativeWidth(width)
+        frame:SetCallback("OnClick", callback)
+        parent:AddChild(frame)
+        return frame
+    end
+
+    if not self.frameOn then -- display new frame
         local alertFrame = AceGUI:Create("Frame")
         alertFrame:SetTitle(L["MyChatAlert"])
         alertFrame:SetStatusText(format(L["Number of alerts: %s"], #self.alerts))
         alertFrame:SetCallback("OnClose", function(widget)
             AceGUI:Release(widget)
             self.frameOn = false
+            MyChatAlert.alertFrame = nil
         end)
         alertFrame:SetLayout("Flow")
 
         -- Column headers
-        local alertNum = AceGUI:Create("Label")
-        alertNum:SetText(L["Number Header"])
+        local alertNum = newLabel(L["Number Header"], 0.04, alertFrame)
         alertNum:SetColor(255, 255, 0)
-        alertNum:SetRelativeWidth(0.04)
-        alertFrame:AddChild(alertNum)
 
-        local alertWord = AceGUI:Create("Label")
-        alertWord:SetText(L["Keyword"])
+        local alertWord = newLabel(L["Keyword"], 0.11, alertFrame)
         alertWord:SetColor(255, 255, 0)
-        alertWord:SetRelativeWidth(0.11)
-        alertFrame:AddChild(alertWord)
 
-        local alertAuthor = AceGUI:Create("Label")
-        alertAuthor:SetText(L["Author"])
+        local alertAuthor = newLabel(L["Author"], 0.13, alertFrame)
         alertAuthor:SetColor(255, 255, 0)
-        alertAuthor:SetRelativeWidth(0.13)
-        alertFrame:AddChild(alertAuthor)
 
-        local alertMsg = AceGUI:Create("Label")
-        alertMsg:SetText(L["Message"])
+        local alertMsg = newLabel(L["Message"], 0.72, alertFrame)
         alertMsg:SetColor(255, 255, 0)
-        alertMsg:SetRelativeWidth(0.72)
-        alertFrame:AddChild(alertMsg)
 
         -- list alerts
         for k, alert in pairs(self.alerts) do
-            local alertNum = AceGUI:Create("Label")
-            alertNum:SetText(k .. L["Number delimiter"])
-            alertNum:SetRelativeWidth(0.04)
-            alertFrame:AddChild(alertNum)
+            local alertNum = newLabel(k .. L["Number delimiter"], 0.04, alertFrame)
+            local alertWord = newLabel(alert.word, 0.11, alertFrame)
+            local alertAuthor = newIntLabel(alert.author, 0.13, function(button) ChatFrame_OpenChat(format(L["/w %s "], alert.author)) end, alertFrame)
+            local alertMsg = newLabel(alert.msg, 0.72, alertFrame)
 
-            local alertWord = AceGUI:Create("Label")
-            alertWord:SetText(alert.word)
-            alertWord:SetRelativeWidth(0.11)
-            alertFrame:AddChild(alertWord)
-
-            local alertAuthor = AceGUI:Create("InteractiveLabel")
-            alertAuthor:SetText(alert.author)
-            alertAuthor:SetRelativeWidth(0.13)
-            alertAuthor:SetCallback("OnClick", function(button)
-                ChatFrame_OpenChat(format(L["/w %s "], alert.author)) -- api call to open chat with a whisper
-            end)
-            alertFrame:AddChild(alertAuthor)
-
-            local alertMsg = AceGUI:Create("Label")
-            alertMsg:SetText(alert.msg)
-            alertMsg:SetRelativeWidth(0.72)
-            alertFrame:AddChild(alertMsg)
+            alert.displayed = true
         end
 
-    end
+        MyChatAlert.alertFrame = alertFrame
+        self.frameOn = true
 
-    self.frameOn = true
+    else -- frame already showing
+        MyChatAlert.alertFrame:SetStatusText(format(L["Number of alerts: %s"], #self.alerts))
+        for k, alert in pairs(self.alerts) do
+            if alert.displayed == false then -- only display new alerts
+                local alertNum = newLabel(k .. L["Number delimiter"], 0.04, MyChatAlert.alertFrame)
+                local alertWord = newLabel(alert.word, 0.11, MyChatAlert.alertFrame)
+                local alertAuthor = newIntLabel(alert.author, 0.13, function(button) ChatFrame_OpenChat(format(L["/w %s "], alert.author)) end, MyChatAlert.alertFrame)
+                local alertMsg = newLabel(alert.msg, 0.72, MyChatAlert.alertFrame)
+
+                alert.displayed = true
+            end
+        end
+    end
 end
