@@ -66,8 +66,16 @@ MyChatAlert.frameOn = false
 MyChatAlert.alerts = {}
 
 function MyChatAlert:AddAlert(word, author, msg) -- makes sure no more than 15 alerts are stored
-    if #self.alerts == 15 then tremove(self.alerts, 1) end -- remove first/oldest alert
-    tinsert(self.alerts, {word = word, author = author, msg = msg})
+    local MAX_ALERTS_TO_KEEP = 20
+    if #self.alerts == MAX_ALERTS_TO_KEEP then tremove(self.alerts, 1) end -- remove first/oldest alert
+
+    local auth = author
+    local realmDelim = auth:find("-") -- nil if not found, otherwise tells where the name ends and realm begins
+    if realmDelim ~= nil then -- author includes the realm name, we can trim that
+        auth = auth:sub(1, realmDelim - 1) -- don't want to include the '-' symbol
+    end
+
+    tinsert(self.alerts, {word = word, author = auth, msg = msg})
 end
 
 function MyChatAlert:ClearAlerts()
@@ -88,22 +96,26 @@ function MyChatAlert:ShowDisplay()
         -- Column headers
         local alertNum = AceGUI:Create("Label")
         alertNum:SetText(L["Number Header"])
+        alertNum:SetColor(255, 255, 0)
         alertNum:SetRelativeWidth(0.04)
         alertFrame:AddChild(alertNum)
 
         local alertWord = AceGUI:Create("Label")
         alertWord:SetText(L["Keyword"])
-        alertWord:SetRelativeWidth(0.13)
+        alertWord:SetColor(255, 255, 0)
+        alertWord:SetRelativeWidth(0.11)
         alertFrame:AddChild(alertWord)
 
         local alertAuthor = AceGUI:Create("Label")
         alertAuthor:SetText(L["Author"])
+        alertAuthor:SetColor(255, 255, 0)
         alertAuthor:SetRelativeWidth(0.13)
         alertFrame:AddChild(alertAuthor)
 
         local alertMsg = AceGUI:Create("Label")
         alertMsg:SetText(L["Message"])
-        alertMsg:SetRelativeWidth(0.70)
+        alertMsg:SetColor(255, 255, 0)
+        alertMsg:SetRelativeWidth(0.72)
         alertFrame:AddChild(alertMsg)
 
         -- list alerts
@@ -115,21 +127,23 @@ function MyChatAlert:ShowDisplay()
 
             local alertWord = AceGUI:Create("Label")
             alertWord:SetText(alert.word)
-            alertWord:SetRelativeWidth(0.13)
+            alertWord:SetRelativeWidth(0.11)
             alertFrame:AddChild(alertWord)
 
-            local alertAuthor = AceGUI:Create("EditBox")
+            local alertAuthor = AceGUI:Create("InteractiveLabel")
             alertAuthor:SetText(alert.author)
             alertAuthor:SetRelativeWidth(0.13)
-            alertAuthor:DisableButton(true)
+            alertAuthor:SetCallback("OnClick", function(button)
+                ChatFrame_OpenChat(format(L["/w %s "], alert.author)) -- api call to open chat with a whisper
+            end)
             alertFrame:AddChild(alertAuthor)
-            --ChatFrame_OpenChat(format(L["/w %s "], alert.author)) -- api call to open chat with a whisper
 
             local alertMsg = AceGUI:Create("Label")
             alertMsg:SetText(alert.msg)
-            alertMsg:SetRelativeWidth(0.7)
+            alertMsg:SetRelativeWidth(0.72)
             alertFrame:AddChild(alertMsg)
         end
+
     end
 
     self.frameOn = true
