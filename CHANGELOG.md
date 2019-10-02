@@ -1,5 +1,9 @@
 # MyChatAlert
 
+## v2.3.0
+- Chat commands added
+  - `/msa` opens the options, `/msa alerts` shows the alert frame
+
 ## v2.2.1
 - zhCN support and curseforge locale injection
 

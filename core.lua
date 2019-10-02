@@ -9,6 +9,8 @@ function MyChatAlert:OnInitialize()
 
     LibStub("AceConfig-3.0"):RegisterOptionsTable("MyChatAlert", self.options)
     self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("MyChatAlert", "MyChatAlert")
+
+    self:RegisterChatCommand("mca", "ChatCommand")
 end
 
 function MyChatAlert:OnEnable()
@@ -49,6 +51,17 @@ function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel)
     end
 end
 
+-- Chat Command
+function MyChatAlert:ChatCommand(arg)
+    if arg == "alerts" then -- open alerts frame
+        self:ShowDisplay()
+    else -- just open the options
+        InterfaceOptionsFrame_OpenToCategory(self.optionsFrame) -- need two calls
+        InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
+    end
+end
+
+-- Alert Frame
 MyChatAlert.frameOn = false
 MyChatAlert.alerts = {}
 
