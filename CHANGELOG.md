@@ -3,6 +3,7 @@
 ## v2.3.0
 - Chat commands added
   - `/msa` opens the options, `/msa alerts` shows the alert frame
+- Author names in the alert frame are now clickable to open a whisper to the author
 
 ## v2.2.1
 - zhCN support and curseforge locale injection
