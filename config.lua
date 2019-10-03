@@ -99,17 +99,10 @@ MyChatAlert.options = {
                     set = function(info, val) tinsert(MyChatAlert.db.profile.channels, availableChannels[val]) end,
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
-                addChannel = {
-                    name = L["Add Channel"],
-                    desc = L["Add a channel to watch from Ex: '4. LookingForGroup'"],
-                    type = "input", order = 2,
-                    set = function(info, val) if val and val ~= "" then tinsert(MyChatAlert.db.profile.channels, val) end end,
-                    disabled = function() return not MyChatAlert.db.profile.enabled end,
-                },
                 removeChannel = {
                     name = L["Remove Channel"],
                     desc = L["Select a channel to remove from being watched"],
-                    type = "select", order = 3, width = 1,
+                    type = "select", order = 2, width = 1,
                     values = function() return MyChatAlert.db.profile.channels end,
                     get = function(info) return channelToDelete end,
                     set = function(info, val) channelToDelete = val end,
@@ -118,13 +111,20 @@ MyChatAlert.options = {
                 removeChannelButton = {
                     name = L["Remove Channel"],
                     desc = L["Remove selected channel from being watched"],
-                    type = "execute", order = 4, width = 0.8,
+                    type = "execute", order = 3, width = 0.8,
                     func = function()
                         if channelToDelete then
                             tremove(MyChatAlert.db.profile.channels, channelToDelete)
                             channelToDelete = nil
                         end
                     end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled end,
+                },
+                addChannel = {
+                    name = L["Add Channel"],
+                    desc = L["Add a channel to watch from Ex: '4. LookingForGroup'"],
+                    type = "input", order = 4,
+                    set = function(info, val) if val and val ~= "" then tinsert(MyChatAlert.db.profile.channels, val) end end,
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
             },

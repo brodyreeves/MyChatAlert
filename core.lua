@@ -23,7 +23,7 @@ end
 
 -- Event Handlers
 function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel)
-    if author == UnitName("player") then return end -- don't do anything if it's your own message
+    if TrimRealmName(author) == UnitName("player") then return end -- don't do anything if it's your own message
 
     -- optional globalignorelist check
     if self.db.profile.globalignorelist then
@@ -69,13 +69,7 @@ function MyChatAlert:AddAlert(word, author, msg) -- makes sure no more than 15 a
     local MAX_ALERTS_TO_KEEP = 30
     if #self.alerts == MAX_ALERTS_TO_KEEP then tremove(self.alerts, 1) end -- remove first/oldest alert
 
-    local auth = author
-    local realmDelim = auth:find("-") -- nil if not found, otherwise tells where the name ends and realm begins
-    if realmDelim ~= nil then -- author includes the realm name, we can trim that
-        auth = auth:sub(1, realmDelim - 1) -- don't want to include the '-' symbol
-    end
-
-    tinsert(self.alerts, {word = word, author = auth, msg = msg, displayed = false})
+    tinsert(self.alerts, {word = word, author = TrimRealmName(author), msg = msg, displayed = false})
 end
 
 function MyChatAlert:ClearAlerts()
@@ -150,4 +144,14 @@ function MyChatAlert:ShowDisplay()
             end
         end
     end
+end
+
+-- helpers
+function TrimRealmName(author)
+    local name = author
+    local realmDelim = name:find("-") -- nil if not found, otherwise tells where the name ends and realm begins
+    if realmDelim ~= nil then -- name includes the realm name, we can trim that
+        name = name:sub(1, realmDelim - 1) -- don't want to include the '-' symbol
+    end
+    return name
 end
