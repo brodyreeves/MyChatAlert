@@ -16,11 +16,18 @@ local plugin = ldb:NewDataObject(addonName, {
 
 function plugin.OnClick(self, button)
     if button == "LeftButton" then
-        MyChatAlert:ShowDisplay()
-    else -- RightButton
         if IsControlKeyDown() then
             InterfaceOptionsFrame_OpenToCategory(addonName)
             InterfaceOptionsFrame_OpenToCategory(addonName) -- needs two calls
+        else
+            MyChatAlert:ShowAlertFrame()
+        end
+
+    else -- RightButton
+        if IsControlKeyDown() then
+            MyChatAlert.db.profile.enabled = not MyChatAlert.db.profile.enabled
+            if MyChatAlert.db.profile.enabled then MyChatAlert:OnEnable()
+            else MyChatAlert:OnDisable() end
         else
             MyChatAlert:ClearAlerts()
         end
@@ -35,8 +42,9 @@ function plugin.OnTooltipShow(tt)
 
     tt:AddLine(" ") -- line break
     tt:AddLine(format(TT_HINT, L["Left-Click"], L["Show alert frame"]))
+    tt:AddLine(format(TT_HINT, L["Control+Left-Click"], L["Open options"]))
     tt:AddLine(format(TT_HINT, L["Right-Click"], L["Clear alerts"]))
-    tt:AddLine(format(TT_HINT, L["Control+Right-Click"], L["Open options"]))
+    tt:AddLine(format(TT_HINT, L["Control+Right-Click"], MyChatAlert.db.profile.enabled and L["Toggle alerts off"] or L["Toggle alerts on"]))
 end
 
 local f = CreateFrame("Frame")
