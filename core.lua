@@ -86,7 +86,7 @@ function MyChatAlert:ShowAlertFrame()
     end
 
     local function newIntLabel(text, width, callback, parent)
-        local frame = AceGUI:Create("Label")
+        local frame = AceGUI:Create("InteractiveLabel")
         frame:SetText(text)
         frame:SetRelativeWidth(width)
         frame:SetCallback("OnClick", callback)
