@@ -40,7 +40,7 @@ function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel)
                 if message:lower():find(word:lower()) then -- Alert message
                     if self.db.profile.soundOn then PlaySound(self.db.profile.sound) end
                     if self.db.profile.printOn then
-                        LibStub("AceConsole-3.0"):Print(format(L["Printed alert"], word, TrimRealmName(author), message))
+                        LibStub("AceConsole-3.0"):Print(format(L["Printed alert"], word, "|Hplayer:" .. TrimRealmName(author) .. ":0|h" .. TrimRealmName(author) .. "|h", message))
                     end
                     self:AddAlert(word, author, message)
                     break -- matched the message so stop looping
