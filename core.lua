@@ -21,6 +21,8 @@ function MyChatAlert:OnDisable()
     self:UnregisterEvent("CHAT_MSG_CHANNEL")
 end
 
+local dedupmsg = {}
+
 -- Event Handlers
 function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel)
     if TrimRealmName(author) == UnitName("player") then return end -- don't do anything if it's your own message
@@ -44,6 +46,17 @@ function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel)
                 end
             end
 
+            if time() - (dedupmsg[message] or 0) < self.db.profile.dedupTime then
+                filtered = true
+            end
+
+            -- gc
+            for m, t in pairs(dedupmsg) do 
+                if time() - t > self.db.profile.dedupTime then
+                    dedupmsg[m] = nil
+                end
+            end
+
             if not filtered then
                 for k2, word in pairs(self.db.profile.words) do
                     if message:lower():find(word:lower()) then -- Alert message
@@ -52,6 +65,9 @@ function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel)
                             LibStub("AceConsole-3.0"):Print(format(L["Printed alert"], word, "|Hplayer:" .. TrimRealmName(author) .. ":0|h" .. TrimRealmName(author) .. "|h", message))
                         end
                         self:AddAlert(word, author, message)
+                        if self.db.profile.dedupTime > 0 then
+                            dedupmsg[message] = time()
+                        end
                         break -- matched the message so stop looping
                     end
                 end

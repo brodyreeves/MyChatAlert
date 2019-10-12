@@ -9,6 +9,7 @@ MyChatAlert.defaults = {
         channels = {},
         words = {},
         filterwords = {},
+        dedupTime = 0,
         globalIgnoreListFilter = false,
     }
 }
@@ -72,6 +73,20 @@ MyChatAlert.options = {
                     type = "toggle", order = 1, width = "half",
                     get = function(info) return MyChatAlert.db.profile.printOn end,
                     set = function(info, val) MyChatAlert.db.profile.printOn = val end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled end,
+                },
+            },
+        },
+        dedup = {
+            name = L["Deduplication"],
+            type = "group", inline = true, order = 4,
+            args = {
+                dedup = {
+                    name = L["Ignore duplicated message in"],
+                    desc = L["unit second, 0 to disable"],
+                    type = "input", order = 2,
+                    get = function(info) return "" .. MyChatAlert.db.profile.dedupTime end,
+                    set = function(info, val) if val and val ~= "" then MyChatAlert.db.profile.dedupTime = tonumber(val) or 0 end end,
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
             },
