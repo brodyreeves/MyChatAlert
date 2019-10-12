@@ -8,11 +8,12 @@ MyChatAlert.defaults = {
         printOn = true,
         channels = {},
         words = {},
+        filterwords = {},
         globalIgnoreListFilter = false,
     }
 }
 
-local channelToDelete, wordToDelete = nil, nil -- used to store which respective table item to delete
+local channelToDelete, wordToDelete, filterwordsToDelete = nil, nil, nil -- used to store which respective table item to delete
 local availableChannels = {} -- cache available channels to quick-add
 
 MyChatAlert.options = {
@@ -163,9 +164,43 @@ MyChatAlert.options = {
                 },
             },
         },
+        filterkeywords = {
+            name = L["Keywords to filter"],
+            type = "group", inline = true, order = 7,
+            args = {
+                addKeyword = {
+                    name = L["Add Keyword"],
+                    desc = L["Add a keyword to filter"],
+                    type = "input", order = 8,
+                    set = function(info, val) if val and val ~= "" then tinsert(MyChatAlert.db.profile.filterwords, val) end end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled end,
+                },
+                removeKeyword = {
+                    name = L["Remove Keyword"],
+                    desc = L["Select a keyword to remove from being filtered"],
+                    type = "select", order = 9, width = 1,
+                    values = function() return MyChatAlert.db.profile.filterwords end,
+                    get = function(info) return filterwordsToDelete end,
+                    set = function(info, val) filterwordsToDelete = val end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled end,
+                },
+                removeKeywordButton = {
+                    name = L["Remove Keyword"],
+                    desc = L["Remove selected keyword from being filtered"],
+                    type = "execute", order = 10, width = 0.8,
+                    func = function()
+                        if filterwordsToDelete then
+                            tremove(MyChatAlert.db.profile.filterwords, filterwordsToDelete)
+                            filterwordsToDelete = nil
+                        end
+                    end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled end,
+                },
+            },
+        },
         miscOptions = {
             name = L["Misc Options"],
-            type = "group", inline = true, order = 7,
+            type = "group", inline = true, order = 8,
             args = {
                 globalIgnoreListFilter = {
                     name = L["Filter with GlobalIgnoreList"],
