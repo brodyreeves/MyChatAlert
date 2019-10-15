@@ -1,5 +1,21 @@
 # MyChatAlert
 
+## v2.4.0
+
+- BIG overhaul of backend
+  - Keywords are now tied to specific channels
+    - You can do something like `dm` for `4. LookingForGroup` and `wtb` for `2. Trade - City`, independent of each other
+    - Because of this, the alert frame now displays the channel as well
+    - Existing channels and keywords should be transferred into the new version
+  - New feature, add filtering words to prevent triggering alertsw
+- Author names in the alerts are now clickable (thanks to GH user tg123)
+- Support for non-global channels (say, yell, party, etc.)
+  - Because of this, the alert frame now displays the channel as well
+  - Loot is currently unavailable, until I can look into this and test it
+  - System is currently unavailable, until I look into the global strings that Blizzard uses to deliver these messages
+- Saw German got some translations done, added it to the Locales
+- GlobalIgnoreList is just disabled for now, until I can look into it
+
 ## v2.3.1
 
 - Fix the filtering of player's own messages

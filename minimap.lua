@@ -36,9 +36,10 @@ end
 function plugin.OnTooltipShow(tt)
     tt:AddLine(format(TT_HEAD, addonName))
 
-    if #MyChatAlert.alerts == 0 then tt:AddLine(format(TT_LINE, L["You have no alerts"]))
-    elseif #MyChatAlert.alerts == 1 then tt:AddLine(format(TT_LINE, format(L["You have %s alert"], #MyChatAlert.alerts)))
-    else tt:AddLine(format(TT_LINE, format(L["You have %s alerts"], #MyChatAlert.alerts))) end
+    if #MyChatAlert.alertCache == 0 then tt:AddLine(format(TT_LINE, L["You have no alerts"]))
+    elseif #MyChatAlert.alertCache == 1 then tt:AddLine(format(TT_LINE, format(L["You have %s alert"], #MyChatAlert.alertCache)))
+    else tt:AddLine(format(TT_LINE, format(L["You have %s alerts"], #MyChatAlert.alertCache)))
+    end
 
     tt:AddLine(" ") -- line break
     tt:AddLine(format(TT_HINT, L["Left-Click"], L["Show alert frame"]))
@@ -61,9 +62,7 @@ f:RegisterEvent("PLAYER_LOGIN")
 
 function MyChatAlert:MinimapToggle(val)
     MyChatAlertLDBIconDB.hide = not val
-    if MyChatAlertLDBIconDB.hide then
-        LibStub("LibDBIcon-1.0"):Hide(addonName)
-    else
-        LibStub("LibDBIcon-1.0"):Show(addonName)
+    if MyChatAlertLDBIconDB.hide then LibStub("LibDBIcon-1.0"):Hide(addonName)
+    else LibStub("LibDBIcon-1.0"):Show(addonName)
     end
 end
