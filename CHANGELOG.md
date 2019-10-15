@@ -13,7 +13,7 @@
   - Because of this, the alert frame now displays the channel as well
   - Loot is currently unavailable, until I can look into this and test it
   - System is currently unavailable, until I look into the global strings that Blizzard uses to deliver these messages
-- Saw German got some translations done, added it to the Locales
+- Saw German got some translations done, added it to the Locales (along with placeholders for other locales)
 - GlobalIgnoreList is just disabled for now, until I can look into it
 
 ## v2.3.1
