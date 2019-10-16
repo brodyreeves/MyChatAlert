@@ -272,7 +272,9 @@ end
 function MyChatAlert:AuthorIgnored(author)
     if author == UnitName("player") then return true end -- don't do anything if it's your own message
 
-    -- TODO: ignore users feature
+    for _, name in pairs(self.db.profile.ignoredAuthors) do
+        if author == name then return true end
+    end
 
     --[[ FIXME: GlobalIgnoreList filter not working
         -- optional globalignorelist check
@@ -287,7 +289,7 @@ function MyChatAlert:AuthorIgnored(author)
     return false
 end
 
-function MyChatAlert:MessageIgnored(message, channel) -- TODO: finsh filter
+function MyChatAlert:MessageIgnored(message, channel)
     if self.db.profile.filterWords and self.db.profile.filterWords[channel] then
         for _, word in pairs(self.db.profile.filterWords[channel]) do
             if message:lower():find(word:lower()) then return true end

@@ -8,15 +8,17 @@ MyChatAlert.defaults = {
         printOn = true,
         triggers = {},
         filterWords = {},
+        ignoredAuthors = {},
         globalIgnoreListFilter = false,
     }
 }
 
-local channelToDelete, selectedChannel, wordToDelete, filterToDelete = nil, nil, nil, nil
+local channelToDelete, selectedChannel, wordToDelete, filterToDelete, authorToDelete = nil, nil, nil, nil, nil
 local availableChannels = {} -- cache available channels to quick-add
 local addedChannels = {}
 local addedWords = {}
 local addedFilters = {}
+local addedAuthors = {}
 
 MyChatAlert.options = {
     name = L["MyChatAlert"],
@@ -285,6 +287,45 @@ MyChatAlert.options = {
                         end
                     end,
                     disabled = function() return not MyChatAlert.db.profile.enabled or not selectedChannel or not filterToDelete end,
+                },
+            },
+        },
+        ignoreAuthor = {
+            name = L["Ignore Authors"],
+            type = "group", inline = true, order = 8,
+            args = {
+                addName = {
+                    name = L["Add Name"],
+                    desc = L["Add a name to ignore"],
+                    type = "input", order = 1,
+                    set = function(info, val) if val ~= "" then tinsert(MyChatAlert.db.profile.ignoredAuthors, val) end end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled end,
+                },
+                removeName = {
+                    name = L["Remove Name"],
+                    desc = L["Select a name to remove from being ignored"],
+                    type = "select", order = 2, width = 1,
+                    values = function()
+                        addedAuthors = {}
+                        for _, name in pairs(MyChatAlert.db.profile.ignoredAuthors) do tinsert(addedAuthors, name) end
+                        return addedAuthors
+                    end,
+                    get = function(info) return authorToDelete end,
+                    set = function(info, val) authorToDelete = val end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.ignoredAuthors or next(MyChatAlert.db.profile.ignoredAuthors) == nil end,
+                },
+                removeNameButton = {
+                    name = L["Remove Name"],
+                    desc = L["Remove selected name from being ignored"],
+                    type = "execute", order = 3, width = 0.8,
+                    func = function()
+                        if authorToDelete then
+                            tremove(MyChatAlert.db.profile.ignoredAuthors, authorToDelete)
+                            tremove(addedAuthors, authorToDelete)
+                            authorToDelete = nil
+                        end
+                    end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled or not authorToDelete end,
                 },
             },
         },

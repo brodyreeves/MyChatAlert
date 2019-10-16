@@ -1,5 +1,9 @@
 # MyChatAlert
 
+## 2.4.1
+
+- New feature: ignore authors to prevent alerts
+
 ## v2.4.0
 
 - BIG overhaul of backend
