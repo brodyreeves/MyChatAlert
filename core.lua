@@ -3,31 +3,24 @@ MyChatAlert = LibStub("AceAddon-3.0"):NewAddon("MyChatAlert", "AceConsole-3.0", 
 local AceGUI = LibStub("AceGUI-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("MyChatAlert")
 
+-------------------------------------------------------------
+----------------------- ACE FUNCTIONS -----------------------
+-------------------------------------------------------------
+
 function MyChatAlert:OnInitialize()
     -- Called when the addon is loaded
     self.db = LibStub("AceDB-3.0"):New("MyChatAlertDB", self.defaults, true)
-
     LibStub("AceConfig-3.0"):RegisterOptionsTable("MyChatAlert", self.options)
     self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("MyChatAlert", "MyChatAlert")
-
     self:RegisterChatCommand("mca", "ChatCommand")
+    self:CreateAlertFrame()
 
     -- Migrate SVs if needed
     if self.db.profile.channels and self.db.profile.words then
         if not self.db.profile.triggers then self.db.profile.triggers = {} end
+        if not self.db.profile.filterWords then self.db.profile.filterWords = {} end
 
-        --[[ main part of migration, moving from single list of words for every channel in the list to a list of words for each individual channel in the list
-            old scheme:
-            db.channels = {"chan1", "chan2", ...}
-            db.words = {"word1", "word2", ...}
-
-            new scheme:
-            db.triggers = {
-                "chan1" = {"word1", "word2"},
-                "chan2" = {"word1", "word3"},
-            }
-        ]]--
-
+        -- main part of migration is moving from a list of words for all channels to a list of words for each individual channel
         for _, channel in pairs(self.db.profile.channels) do
             local words = {}
             for _, word in pairs(self.db.profile.words) do
@@ -35,17 +28,43 @@ function MyChatAlert:OnInitialize()
             end
             self.db.profile.triggers[channel] = words
         end
-        -- once moved, delete the old ones
+
+        -- once migrated, delete the old ones
         self.db.profile.channels = nil
         self.db.profile.words = nil
-
-        if not self.db.profile.filterWords then self.db.profile.filterWords = {} end
     end
 end
 
+function MyChatAlert:OnEnable()
+    if not self.db.profile.enabled then return end
+
+    local chat_msg_chan = false
+
+    for chan, _ in pairs(self.db.profile.triggers) do -- register all necessary events for added channels
+        if self.eventMap[chan] then -- channel is mapped to an event
+            self:RegisterEvent(self.eventMap[chan])
+
+        elseif not chat_msg_chan then -- custom/global channels use generic event
+            self:RegisterEvent("CHAT_MSG_CHANNEL")
+            chat_msg_chan = true
+        end
+    end
+end
+
+function MyChatAlert:OnDisable()
+    if self.db.profile.enabled then return end
+
+    self:UnregisterEvent("CHAT_MSG_CHANNEL")
+    for _, event in pairs(self.eventMap) do self:UnregisterEvent(event) end
+end
+
+-------------------------------------------------------------
+----------------------- EVENT HANDLERS ----------------------
+-------------------------------------------------------------
+
 MyChatAlert.eventMap = {
     [L["Guild"]] = "CHAT_MSG_GUILD",
-    --[L["Loot"]] = "CHAT_MSG_LOOT",
+    -- [L["Loot"]] = "CHAT_MSG_LOOT",
     [L["Officer"]] = "CHAT_MSG_OFFICER",
     [L["Party"]] = "CHAT_MSG_PARTY",
     [L["Party Leader"]] = "CHAT_MSG_PARTY_LEADER",
@@ -53,41 +72,19 @@ MyChatAlert.eventMap = {
     [L["Raid Leader"]] = "CHAT_MSG_RAID_LEADER",
     [L["Raid Warning"]] = "CHAT_MSG_RAID_WARNING",
     [L["Say"]] = "CHAT_MSG_SAY",
-    --[L["System"]] = "CHAT_MSG_SYSTEM",
+    -- [L["System"]] = "CHAT_MSG_SYSTEM",
     [L["Yell"]] = "CHAT_MSG_YELL",
 }
 
-function MyChatAlert:OnEnable()
-    local msg_chan_reg = false
-
-    for chan, _ in pairs(self.db.profile.triggers) do -- register all necessary events for added channels
-        if self.eventMap[chan] then -- channel is mapped to an event
-            self:RegisterEvent(self.eventMap[chan])
-        elseif not msg_chan_reg then -- custom/global channels use generic event
-            self:RegisterEvent("CHAT_MSG_CHANNEL")
-            msg_chan_reg = true
-        end
-    end
-end
-
-function MyChatAlert:OnDisable()
-    self:UnregisterEvent("CHAT_MSG_CHANNEL")
-
-    for _, event in pairs(self.eventMap) do
-        self:UnregisterEvent(event)
-    end
-end
-
--- Event Handlers
 function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel)
-    if self:AuthorIgnored(self:TrimRealmName(author)) then return end
+    if self:AuthorIgnored(TrimRealmName(author)) then return end
     if self:MessageIgnored(message, channel) then return end
 
     for ch, words in pairs(self.db.profile.triggers) do -- find the channel
         if channel:lower() == ch:lower() then
             for _, word in pairs(words) do -- find the word
                 if message:lower():find(word:lower()) then -- Alert message
-                    self:AddAlert(word, self:TrimRealmName(author), message, channel)
+                    self:AddAlert(word, TrimRealmName(author), message, channel)
                     return -- matched the message, stop
                 end
             end
@@ -101,6 +98,7 @@ function MyChatAlert:CHAT_MSG_GUILD(event, message, author)
 end
 
 function MyChatAlert:CHAT_MSG_LOOT(event, message)
+    -- TODO: test this
     for _, word in pairs(self.db.profile.triggers[L["Loot"]]) do -- find the word
         if message:lower():find(word:lower()) then -- Alert message
             self:AddAlert(word, UnitName("player"), message, L["Loot"])
@@ -147,36 +145,119 @@ function MyChatAlert:CHAT_MSG_YELL(event, message, author)
 end
 
 function MyChatAlert:CheckAlert(event, message, author, channel)
-    if self:AuthorIgnored(self:TrimRealmName(author)) then return end
+    if self:AuthorIgnored(TrimRealmName(author)) then return end
     if self:MessageIgnored(message, channel) then return end
 
     for _, word in pairs(self.db.profile.triggers[channel]) do -- find the word
         if message:lower():find(word:lower()) then -- Alert message
-            self:AddAlert(word, self:TrimRealmName(author), message, channel)
+            self:AddAlert(word, TrimRealmName(author), message, channel)
             return -- matched the message, stop
         end
     end
 end
 
--- Chat Commands
+-------------------------------------------------------------
+----------------------- CHAT COMMANDS -----------------------
+-------------------------------------------------------------
+
 function MyChatAlert:ChatCommand(arg)
-    if arg == "alerts" then -- open alerts frame
-        self:ShowAlertFrame()
+    if arg == "alerts" then self:ToggleAlertFrame()
     else -- just open the options
         InterfaceOptionsFrame_OpenToCategory(self.optionsFrame) -- need two calls
         InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
     end
 end
 
--- Alert Frame
-MyChatAlert.frameOn = false
-MyChatAlert.alertCache = {}
+-------------------------------------------------------------
+------------------------ ALERT FRAME ------------------------
+-------------------------------------------------------------
+
+MyChatAlert.alertFrame = {
+    frame = nil,
+    alerts = {},
+    MAX_ALERTS_TO_KEEP = 30,
+}
+
+function MyChatAlert.alertFrame.NewLabel(text, width, parent)
+    local frame = AceGUI:Create("Label")
+    frame:SetText(text)
+    frame:SetRelativeWidth(width)
+    parent:AddChild(frame)
+
+    return frame
+end
+
+function MyChatAlert.alertFrame.NewIntLabel(text, width, callback, parent)
+    local frame = AceGUI:Create("InteractiveLabel")
+    frame:SetText(text)
+    frame:SetRelativeWidth(width)
+    frame:SetCallback("OnClick", callback)
+    parent:AddChild(frame)
+
+    return frame
+end
+
+function MyChatAlert.alertFrame.AddHeaders(parent)
+    local alertNum = MyChatAlert.alertFrame.NewLabel(L["Number Header"], 0.04, parent)
+    alertNum:SetColor(255, 255, 0)
+    local alertChan = MyChatAlert.alertFrame.NewLabel(L["Channel"], 0.17, parent)
+    alertChan:SetColor(255, 255, 0)
+    local alertWord = MyChatAlert.alertFrame.NewLabel(L["Keyword"], 0.11, parent)
+    alertWord:SetColor(255, 255, 0)
+    local alertAuthor = MyChatAlert.alertFrame.NewLabel(L["Author"], 0.13, parent)
+    alertAuthor:SetColor(255, 255, 0)
+    local alertMsg = MyChatAlert.alertFrame.NewLabel(L["Message"], 0.55, parent)
+    alertMsg:SetColor(255, 255, 0)
+end
+
+function MyChatAlert.alertFrame.AddEntry(num, alert, parent)
+    local alertNum = MyChatAlert.alertFrame.NewLabel(num .. L["Number delimiter"], 0.04, parent)
+    local alertChan = MyChatAlert.alertFrame.NewLabel(alert.channel, 0.17, parent)
+    local alertWord = MyChatAlert.alertFrame.NewLabel(alert.word, 0.11, parent)
+    local alertAuthor = MyChatAlert.alertFrame.NewIntLabel(alert.author, 0.13, function(button) ChatFrame_OpenChat(format(L["/w %s "], alert.author)) end, parent)
+    local alertMsg = MyChatAlert.alertFrame.NewLabel(alert.msg, 0.55, parent)
+end
+
+function MyChatAlert.alertFrame.ClearAlerts()
+    MyChatAlert.alertFrame.alerts = {}
+    if MyChatAlert.alertFrame.frame:IsVisible() then -- reload frame
+        MyChatAlert.alertFrame.frame:Hide()
+        MyChatAlert.alertFrame.frame:Show()
+    end
+end
+
+function MyChatAlert:CreateAlertFrame()
+    self.alertFrame.frame = AceGUI:Create("Frame")
+    self.alertFrame.frame:SetTitle(L["MyChatAlert"])
+    self.alertFrame.frame:SetStatusText(format(L["Number of alerts: %s"], #self.alertFrame.alerts))
+    self.alertFrame.frame:SetLayout("Flow")
+    self.alertFrame.frame:Hide()
+
+    self.alertFrame.frame:SetCallback("OnClose", function(widget)
+        self.alertFrame.frame:ReleaseChildren()
+    end)
+
+    self.alertFrame.frame:SetCallback("OnShow", function(widget)
+        self.alertFrame.AddHeaders(self.alertFrame.frame)
+        for i, alert in pairs(self.alertFrame.alerts) do self.alertFrame.AddEntry(i, alert, self.alertFrame.frame) end
+        self.alertFrame.frame:SetStatusText(format(L["Number of alerts: %s"], #self.alertFrame.alerts))
+    end)
+end
+
+function MyChatAlert:ToggleAlertFrame()
+    if self.alertFrame.frame:IsVisible() then self.alertFrame.frame:Hide()
+    else self.alertFrame.frame:Show()
+    end
+end
 
 function MyChatAlert:AddAlert(word, author, msg, channel) -- makes sure no more than 15 alerts are stored
-    local MAX_ALERTS_TO_KEEP = 30
-    if #self.alertCache == MAX_ALERTS_TO_KEEP then tremove(self.alertCache, 1) end -- remove first/oldest alert
+    if #self.alertFrame.alerts == self.alertFrame.MAX_ALERTS_TO_KEEP then tremove(self.alertFrame.alerts, 1) end -- remove first/oldest alert
+    tinsert(self.alertFrame.alerts, {word = word, author = author, msg = msg, channel = channel}) -- insert alert
 
-    tinsert(self.alertCache, {word = word, author = author, msg = msg, channel = channel, displayed = false})
+    if self.alertFrame.frame:IsVisible() then -- reload frame
+        self.alertFrame.frame:Hide()
+        self.alertFrame.frame:Show()
+    end
 
     if self.db.profile.soundOn then PlaySound(self.db.profile.sound) end
     if self.db.profile.printOn then
@@ -184,90 +265,23 @@ function MyChatAlert:AddAlert(word, author, msg, channel) -- makes sure no more 
     end
 end
 
-function MyChatAlert:ClearAlerts()
-    self.alertCache = {}
-end
+-------------------------------------------------------------
+-------------------------- HELPERS --------------------------
+-------------------------------------------------------------
 
-function MyChatAlert:ShowAlertFrame()
-    local function newLabel(text, width, parent)
-        local frame = AceGUI:Create("Label")
-        frame:SetText(text)
-        frame:SetRelativeWidth(width)
-        parent:AddChild(frame)
-        return frame
-    end
-
-    local function newIntLabel(text, width, callback, parent)
-        local frame = AceGUI:Create("InteractiveLabel")
-        frame:SetText(text)
-        frame:SetRelativeWidth(width)
-        frame:SetCallback("OnClick", callback)
-        parent:AddChild(frame)
-        return frame
-    end
-
-    local function addEntry(num, alert, parent)
-        local alertNum = newLabel(num .. L["Number delimiter"], 0.04, parent)
-        local alertChan = newLabel(alert.channel, 0.17, parent)
-        local alertWord = newLabel(alert.word, 0.11, parent)
-        local alertAuthor = newIntLabel(alert.author, 0.13, function(button) ChatFrame_OpenChat(format(L["/w %s "], alert.author)) end, parent)
-        local alertMsg = newLabel(alert.msg, 0.55, parent)
-
-        alert.displayed = true
-    end
-
-    if not self.frameOn then -- display new frame
-        local alertFrame = AceGUI:Create("Frame")
-        alertFrame:SetTitle(L["MyChatAlert"])
-        alertFrame:SetStatusText(format(L["Number of alerts: %s"], #self.alertCache))
-        alertFrame:SetCallback("OnClose", function(widget)
-            AceGUI:Release(widget)
-            self.frameOn = false
-            self.alertFrame = nil
-        end)
-        alertFrame:SetLayout("Flow")
-
-        -- Column headers
-        local alertNum = newLabel(L["Number Header"], 0.04, alertFrame)
-        alertNum:SetColor(255, 255, 0)
-
-        local alertChan = newLabel(L["Channel"], 0.17, alertFrame)
-        alertChan:SetColor(255, 255, 0)
-
-        local alertWord = newLabel(L["Keyword"], 0.11, alertFrame)
-        alertWord:SetColor(255, 255, 0)
-
-        local alertAuthor = newLabel(L["Author"], 0.13, alertFrame)
-        alertAuthor:SetColor(255, 255, 0)
-
-        local alertMsg = newLabel(L["Message"], 0.55, alertFrame)
-        alertMsg:SetColor(255, 255, 0)
-
-        -- list alerts
-        for k, alert in pairs(self.alertCache) do addEntry(k, alert, alertFrame) end
-
-        self.alertFrame = alertFrame
-        self.frameOn = true
-
-    else -- frame already showing
-        self.alertFrame:SetStatusText(format(L["Number of alerts: %s"], #self.alertCache))
-        for k, alert in pairs(self.alertCache) do
-            if not alert.displayed then -- only display alerts new since opening the frame
-                addEntry(k, alert, self.alertFrame)
-            end
-        end
-    end
-end
-
--- helpers
-function MyChatAlert:TrimRealmName(author)
+function TrimRealmName(author)
     local name = author
     local realmDelim = name:find("-") -- nil if not found, otherwise tells where the name ends and realm begins
     if realmDelim ~= nil then -- name includes the realm name, we can trim that
         name = name:sub(1, realmDelim - 1) -- don't want to include the '-' symbol
     end
+
     return name
 end
+
+-------------------------------------------------------------
+-------------------------- FILTERS --------------------------
+-------------------------------------------------------------
 
 function MyChatAlert:AuthorIgnored(author)
     if author == UnitName("player") then return true end -- don't do anything if it's your own message
@@ -276,16 +290,17 @@ function MyChatAlert:AuthorIgnored(author)
         if author == name then return true end
     end
 
-    --[[ FIXME: GlobalIgnoreList filter not working
+    --[[ FIXME: GlobalIgnoreList filter not working (test after fixing return value)
         -- optional globalignorelist check
         if self.db.profile.globalignorelist then
             for i = 1, #GlobalIgnoreDB.ignoreList do
                 if author == GlobalIgnoreDB.ignoreList[i] then -- found in ignore list
-                    return
+                    return true
                 end
             end
         end
     ]]--
+
     return false
 end
 
@@ -295,5 +310,6 @@ function MyChatAlert:MessageIgnored(message, channel)
             if message:lower():find(word:lower()) then return true end
         end
     end
+
     return false
 end

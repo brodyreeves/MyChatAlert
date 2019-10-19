@@ -42,7 +42,7 @@ MyChatAlert.options = {
             desc = L["Enable/disable the minimap button"],
             type = "toggle", order = 2, width = "half",
             get = function(info) return not MyChatAlertLDBIconDB.hide end,
-            set = function(info, val) MyChatAlert:MinimapToggle(val) end,
+            set = function(info, val) MyChatAlert:MinimapToggle() end,
             disabled = function() return not MyChatAlert.db.profile.enabled end,
         },
         sound = {
@@ -92,6 +92,7 @@ MyChatAlert.options = {
                     type = "select", order = 1, width = 1,
                     values = function()
                         availableChannels = {} -- flush for recreation
+
                         for i = 1, NUM_CHAT_WINDOWS do
                             local num, name = GetChannelName(i)
                             if num > 0 then -- number channel, e.g. 2. Trade - City
@@ -101,6 +102,7 @@ MyChatAlert.options = {
                                 availableChannels[#availableChannels + 1] = name
                             end
                         end
+
                         -- standard, non-numbered channels
                         -- TODO: check if these are the actual channel names
                         availableChannels[#availableChannels + 1] = L["Guild"]
@@ -340,8 +342,8 @@ MyChatAlert.options = {
                     type = "toggle", order = 1, width = 1.15,
                     get = function(info) return MyChatAlert.db.profile.globalIgnoreListFilter end,
                     set = function(info, val) MyChatAlert.db.profile.globalIgnoreListFilter = val end,
-                    disabled = true,
                     --disabled = function() return not MyChatAlert.db.profile.enabled end,
+                    disabled = true,
                 },
             },
         },
