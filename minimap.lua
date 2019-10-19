@@ -19,30 +19,35 @@ function plugin.OnClick(self, button)
         if IsControlKeyDown() then
             InterfaceOptionsFrame_OpenToCategory(addonName)
             InterfaceOptionsFrame_OpenToCategory(addonName) -- needs two calls
+
         else
-            MyChatAlert:ShowAlertFrame()
+            MyChatAlert:ToggleAlertFrame()
         end
 
-    else -- RightButton
+    elseif button == "RightButton" then
         if IsControlKeyDown() then
             MyChatAlert.db.profile.enabled = not MyChatAlert.db.profile.enabled
             if MyChatAlert.db.profile.enabled then MyChatAlert:OnEnable()
             else MyChatAlert:OnDisable() end
+
         else
-            MyChatAlert:ClearAlerts()
+            MyChatAlert.alertFrame.ClearAlerts()
         end
     end
 end
+
 function plugin.OnTooltipShow(tt)
     tt:AddLine(format(TT_HEAD, addonName))
 
-    if #MyChatAlert.alertCache == 0 then tt:AddLine(format(TT_LINE, L["You have no alerts"]))
-    elseif #MyChatAlert.alertCache == 1 then tt:AddLine(format(TT_LINE, format(L["You have %s alert"], #MyChatAlert.alertCache)))
-    else tt:AddLine(format(TT_LINE, format(L["You have %s alerts"], #MyChatAlert.alertCache)))
+    local numAlerts = #MyChatAlert.alertFrame.alerts
+
+    if numAlerts == 0 then tt:AddLine(format(TT_LINE, L["You have no alerts"]))
+    elseif numAlerts == 1 then tt:AddLine(format(TT_LINE, format(L["You have %s alert"], numAlerts)))
+    else tt:AddLine(format(TT_LINE, format(L["You have %s alerts"], numAlerts)))
     end
 
     tt:AddLine(" ") -- line break
-    tt:AddLine(format(TT_HINT, L["Left-Click"], L["Show alert frame"]))
+    tt:AddLine(format(TT_HINT, L["Left-Click"], L["Toggle alert frame"]))
     tt:AddLine(format(TT_HINT, L["Control+Left-Click"], L["Open options"]))
     tt:AddLine(format(TT_HINT, L["Right-Click"], L["Clear alerts"]))
     tt:AddLine(format(TT_HINT, L["Control+Right-Click"], MyChatAlert.db.profile.enabled and L["Toggle alerts off"] or L["Toggle alerts on"]))
@@ -52,16 +57,19 @@ local f = CreateFrame("Frame")
 f:SetScript("OnEvent", function()
     local icon = LibStub("LibDBIcon-1.0", true)
     if not icon then return end
+
     if not MyChatAlertLDBIconDB then
         MyChatAlertLDBIconDB = {}
         MyChatAlertLDBIconDB.hide = false
     end
+
     icon:Register(addonName, plugin, MyChatAlertLDBIconDB)
 end)
 f:RegisterEvent("PLAYER_LOGIN")
 
-function MyChatAlert:MinimapToggle(val)
-    MyChatAlertLDBIconDB.hide = not val
+function MyChatAlert:MinimapToggle()
+    MyChatAlertLDBIconDB.hide = not MyChatAlertLDBIconDB.hide
+
     if MyChatAlertLDBIconDB.hide then LibStub("LibDBIcon-1.0"):Hide(addonName)
     else LibStub("LibDBIcon-1.0"):Show(addonName)
     end

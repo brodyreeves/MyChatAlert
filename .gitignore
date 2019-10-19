@@ -7,3 +7,5 @@ Libs/AceConsole-3.0
 Libs/AceGUI-3.0
 Libs/AceConfig-3.0
 Libs/LibDBIcon-1.0
+
+copy-files.ps1

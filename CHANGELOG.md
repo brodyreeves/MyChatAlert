@@ -1,5 +1,14 @@
 # MyChatAlert
 
+## 2.4.2
+
+- Bug: Fixed the issue where alerts would be enabled on log-in, regardless of the option
+- Revisited alert frame handling
+  - Frame will automatically update when receiving new alerts while showing
+  - Minimap buttton now toggles frame on and off, instead of just showing/updating the frame
+  - Chat command `/mca alerts` also toggles the frame now
+  - Clearing the alerts also removes alerts from the frame
+
 ## 2.4.1
 
 - New feature: ignore authors to prevent alerts
