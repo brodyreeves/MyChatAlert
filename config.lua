@@ -48,8 +48,8 @@ MyChatAlert.options = {
         },
         dedup = {
             name = L["Time to wait"],
-            desc = L["Amount of time to ignore duplicated messages for, in seconds (0 to disable)"],
-            type = "input", order = 3,
+            desc = L["Amount of time to ignore duplicate messages for, in seconds (0 to disable)"],
+            type = "input", order = 3, width = 0.4,
             get = function(info) return "" .. MyChatAlert.db.profile.dedupTime end,
             set = function(info, val) if tonumber(val) ~= nil then MyChatAlert.db.profile.dedupTime = tonumber(val) end end,
             disabled = function() return not MyChatAlert.db.profile.enabled end,
@@ -69,7 +69,7 @@ MyChatAlert.options = {
                 sound = {
                     name = L["Alert Sound"],
                     desc = L["Sound id to play (can be browsed on Wowhead.com)"],
-                    type = "input", order = 2,
+                    type = "input", order = 2, width = 0.4,
                     get = function(info) return MyChatAlert.db.profile.sound end,
                     set = function(info, val) if tonumber(val) ~= nil then MyChatAlert.db.profile.sound = val end end,
                     disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.soundOn end,
@@ -207,14 +207,14 @@ MyChatAlert.options = {
                 addKeyword = {
                     name = L["Add Keyword"],
                     desc = L["Add a keyword to watch for"],
-                    type = "input", order = 2,
+                    type = "input", order = 2, width = 0.5,
                     set = function(info, val) if val ~= "" then tinsert(MyChatAlert.db.profile.triggers[addedChannels[selectedChannel]], val) end end,
                     disabled = function() return not MyChatAlert.db.profile.enabled or not selectedChannel end,
                 },
                 removeKeyword = {
                     name = L["Remove Keyword"],
                     desc = L["Select a keyword to remove from being watched for"],
-                    type = "select", order = 3, width = 1,
+                    type = "select", order = 3, width = 1, width = 0.6,
                     values = function()
                         addedWords = {}
                         if selectedChannel and MyChatAlert.db.profile.triggers[addedChannels[selectedChannel]] and #MyChatAlert.db.profile.triggers[addedChannels[selectedChannel]] > 0 then
@@ -261,7 +261,7 @@ MyChatAlert.options = {
                 addFilter = {
                     name = L["Add Filter"],
                     desc = L["Add a word to filter out"],
-                    type = "input", order = 2,
+                    type = "input", order = 2, width = 0.5,
                     set = function(info, val)
                         if val ~= "" then
                             if not MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]] then
@@ -274,7 +274,7 @@ MyChatAlert.options = {
                 removeFilter = {
                     name = L["Remove Filter"],
                     desc = L["Select a keyword to remove from being filtered"],
-                    type = "select", order = 3, width = 1,
+                    type = "select", order = 3, width = 1, width = 0.6,
                     values = function()
                         addedFilters = {}
                         if selectedChannel and MyChatAlert.db.profile.filterWords and MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]] and next(MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]]) ~= nil then
@@ -308,14 +308,14 @@ MyChatAlert.options = {
                 addName = {
                     name = L["Add Name"],
                     desc = L["Add a name to ignore"],
-                    type = "input", order = 1,
+                    type = "input", order = 1, width = 0.5,
                     set = function(info, val) if val ~= "" then tinsert(MyChatAlert.db.profile.ignoredAuthors, val) end end,
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
                 removeName = {
                     name = L["Remove Name"],
                     desc = L["Select a name to remove from being ignored"],
-                    type = "select", order = 2, width = 1,
+                    type = "select", order = 2, width = 0.6,
                     values = function()
                         addedAuthors = {}
                         for _, name in pairs(MyChatAlert.db.profile.ignoredAuthors) do tinsert(addedAuthors, name) end

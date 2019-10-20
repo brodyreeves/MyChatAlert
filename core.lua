@@ -79,7 +79,7 @@ MyChatAlert.eventMap = {
 function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel)
     if self:AuthorIgnored(TrimRealmName(author)) then return end
     if self:MessageIgnored(message, channel) then return end
-    if self:DuplicateMessage(message, author) then return end
+    if self:IsDuplicateMessage(message, TrimRealmName(author)) then return end
 
     for ch, words in pairs(self.db.profile.triggers) do -- find the channel
         if channel:lower() == ch:lower() then
@@ -148,7 +148,7 @@ end
 function MyChatAlert:CheckAlert(event, message, author, channel)
     if self:AuthorIgnored(TrimRealmName(author)) then return end
     if self:MessageIgnored(message, channel) then return end
-    if self:IsDuplicateMessage(message, author) then return end
+    if self:IsDuplicateMessage(message, TrimRealmName(author)) then return end
 
     for _, word in pairs(self.db.profile.triggers[channel]) do -- find the word
         if message:lower():find(word:lower()) then -- Alert message
@@ -318,7 +318,7 @@ end
 
 function MyChatAlert:IsDuplicateMessage(message, author)
     for i, alert in pairs(self.alertFrame.alerts) do
-        if message == alert.message and author == alert.author and time() - alert.time < self.db.profile.dedupTime then return true end
+        if message == alert.msg and author == alert.author and time() - alert.time < self.db.profile.dedupTime then return true end
     end
 
     return false
