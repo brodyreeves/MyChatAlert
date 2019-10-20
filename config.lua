@@ -9,6 +9,7 @@ MyChatAlert.defaults = {
         triggers = {},
         filterWords = {},
         ignoredAuthors = {},
+        dedupTime = 0,
         globalIgnoreListFilter = false,
     }
 }
@@ -45,9 +46,17 @@ MyChatAlert.options = {
             set = function(info, val) MyChatAlert:MinimapToggle() end,
             disabled = function() return not MyChatAlert.db.profile.enabled end,
         },
+        dedup = {
+            name = L["Time to wait"],
+            desc = L["Amount of time to ignore duplicated messages for, in seconds (0 to disable)"],
+            type = "input", order = 3,
+            get = function(info) return "" .. MyChatAlert.db.profile.dedupTime end,
+            set = function(info, val) if tonumber(val) ~= nil then MyChatAlert.db.profile.dedupTime = tonumber(val) end end,
+            disabled = function() return not MyChatAlert.db.profile.enabled end,
+        },
         sound = {
             name = L["Sound"],
-            type = "group", inline = true, order = 3,
+            type = "group", inline = true, order = 4,
             args = {
                 soundOn = {
                     name = L["Enable"],
@@ -69,7 +78,7 @@ MyChatAlert.options = {
         },
         printing = {
             name = L["Printing"],
-            type = "group", inline = true, order = 4,
+            type = "group", inline = true, order = 5,
             args = {
                 printOn = {
                     name = L["Enable"],
@@ -84,7 +93,7 @@ MyChatAlert.options = {
         },
         channels = {
             name = L["Channels"],
-            type = "group", inline = true, order = 5,
+            type = "group", inline = true, order = 6,
             args = {
                 pickChannel = {
                     name = L["Select New Channel"],
@@ -180,7 +189,7 @@ MyChatAlert.options = {
         },
         keywords = {
             name = L["Keywords"],
-            type = "group", inline = true, order = 6,
+            type = "group", inline = true, order = 7,
             args = {
                 selectChannel = {
                     name = L["Select Channel"],
@@ -234,7 +243,7 @@ MyChatAlert.options = {
         },
         filterWords = {
             name = L["Filter Words"],
-            type = "group", inline = true, order = 7,
+            type = "group", inline = true, order = 8,
             args = {
                 selectChannel = {
                     name = L["Select Channel"],
@@ -294,7 +303,7 @@ MyChatAlert.options = {
         },
         ignoreAuthor = {
             name = L["Ignore Authors"],
-            type = "group", inline = true, order = 8,
+            type = "group", inline = true, order = 9,
             args = {
                 addName = {
                     name = L["Add Name"],
