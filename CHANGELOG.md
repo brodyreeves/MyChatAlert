@@ -1,5 +1,34 @@
 # MyChatAlert
 
+## 2.4.2
+
+- Bug: Fixed the issue where alerts would be enabled on log-in, regardless of the option
+- Revisited alert frame handling
+  - Frame will automatically update when receiving new alerts while showing
+  - Minimap buttton now toggles frame on and off, instead of just showing/updating the frame
+  - Chat command `/mca alerts` also toggles the frame now
+  - Clearing the alerts also removes alerts from the frame
+
+## 2.4.1
+
+- New feature: ignore authors to prevent alerts
+
+## v2.4.0
+
+- BIG overhaul of backend
+  - Keywords are now tied to specific channels
+    - You can do something like `dm` for `4. LookingForGroup` and `wtb` for `2. Trade - City`, independent of each other
+    - Because of this, the alert frame now displays the channel as well
+    - Existing channels and keywords should be transferred into the new version
+  - New feature, add filtering words to prevent triggering alertsw
+- Author names in the alerts are now clickable (thanks to GH user tg123)
+- Support for non-global channels (say, yell, party, etc.)
+  - Because of this, the alert frame now displays the channel as well
+  - Loot is currently unavailable, until I can look into this and test it
+  - System is currently unavailable, until I look into the global strings that Blizzard uses to deliver these messages
+- Saw German got some translations done, added it to the Locales (along with placeholders for other locales)
+- GlobalIgnoreList is just disabled for now, until I can look into it
+
 ## v2.3.1
 
 - Fix the filtering of player's own messages
