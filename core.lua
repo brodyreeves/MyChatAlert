@@ -88,8 +88,8 @@ function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel)
                     self:AddAlert(word, TrimRealmName(author), message, channel)
                     return -- matched the message, stop
                 end
-                break -- matched the channel so stop looping
             end
+            break -- matched the channel so stop looping
         end
     end
 end
@@ -320,6 +320,6 @@ function MyChatAlert:IsDuplicateMessage(message, author)
     for i, alert in pairs(self.alertFrame.alerts) do
         if message == alert.message and author == alert.author and time() - alert.time < self.db.profile.dedupTime then return true end
     end
-    
+
     return false
 end
