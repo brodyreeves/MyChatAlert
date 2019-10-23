@@ -102,6 +102,8 @@ MyChatAlert.options = {
                     values = function()
                         availableChannels = {} -- flush for recreation
 
+                        availableChannels[#availableChannels + 1] = L["MyChatAlert Global Keywords"])
+
                         for i = 1, NUM_CHAT_WINDOWS do
                             local num, name = GetChannelName(i)
                             if num > 0 then -- number channel, e.g. 2. Trade - City

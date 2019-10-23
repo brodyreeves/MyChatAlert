@@ -35,6 +35,7 @@ L["Message"] = true
 L["Minimap"] = true
 L["Misc Options"] = true
 L["MyChatAlert"] = true
+L["MyChatAlert Global Keywords"] = true
 L["Number delimiter"] = "."
 L["Number Header"] = "#."
 L["Number of alerts: %s"] = true

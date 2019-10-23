@@ -83,6 +83,13 @@ function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel)
 
     for ch, words in pairs(self.db.profile.triggers) do -- find the channel
         if channel:lower() == ch:lower() then
+            for _, word in pairs(self.db.profile.triggers[L["MyChatAlert Global Keywords"]]) do -- check global keywords after matching the channel to ensure channel is added
+                if message:lower():find(word:lower()) then
+                    self:AddAlert(word, TrimRealmName(author), message, "*" .. channel)
+                    return
+                end
+            end
+
             for _, word in pairs(words) do -- find the word
                 if message:lower():find(word:lower()) then -- Alert message
                     self:AddAlert(word, TrimRealmName(author), message, channel)
@@ -100,6 +107,13 @@ end
 
 function MyChatAlert:CHAT_MSG_LOOT(event, message)
     -- TODO: test this
+    for _, word in pairs(self.db.profile.triggers[L["MyChatAlert Global Keywords"]]) do
+        if message:lower():find(word:lower()) then
+            self:AddAlert(word, UnitName("player"), message, "*" .. L["Loot"])
+            return
+        end
+    end
+
     for _, word in pairs(self.db.profile.triggers[L["Loot"]]) do -- find the word
         if message:lower():find(word:lower()) then -- Alert message
             self:AddAlert(word, UnitName("player"), message, L["Loot"])
@@ -149,6 +163,13 @@ function MyChatAlert:CheckAlert(event, message, author, channel)
     if self:AuthorIgnored(TrimRealmName(author)) then return end
     if self:MessageIgnored(message, channel) then return end
     if self:IsDuplicateMessage(message, TrimRealmName(author)) then return end
+
+    for _, word in pairs(self.db.profile.triggers[L["MyChatAlert Global Keywords"]]) do -- check global keywords after matching the channel to ensure channel is added
+        if message:lower():find(word:lower()) then
+            self:AddAlert(word, TrimRealmName(author), message, "*" .. channel)
+            return
+        end
+    end
 
     for _, word in pairs(self.db.profile.triggers[channel]) do -- find the word
         if message:lower():find(word:lower()) then -- Alert message
