@@ -283,8 +283,46 @@ function MyChatAlert:AddAlert(word, author, msg, channel) -- makes sure no more 
     end
 
     if self.db.profile.soundOn then PlaySound(self.db.profile.sound) end
+
     if self.db.profile.printOn then
-        LibStub("AceConsole-3.0"):Print(format(L["Printed alert"], word, "|Hplayer:" .. author .. ":0|h" .. author .. "|h", msg)) -- link api thanks to GH:'tg123'
+        local dest = self.outputFrames[self.db.profile.printOutput].frame
+
+        local message = interp(L["Printed alert"], {
+            keyword = word,
+            author = "|Hplayer:" .. author .. ":0|h" .. author .. "|h",
+            message = msg,
+            keywordColor = "|cFFFFFF00",
+            authorColor = "|cFFFFFF00",
+            messageColor = "|cFFFFFF00",
+        })
+
+        if dest == "DEFAULT_CHAT_FRAME" then
+            DEFAULT_CHAT_FRAME:AddMessage(message, 1.0, 1.0, 1.0)
+        elseif dest == "UIErrorsFrame" then
+            UIErrorsFrame:AddMessage(message, 1.0, 1.0, 1.0)
+        elseif dest == "ChatFrame1" then
+            ChatFrame1:AddMessage(message, 1.0, 1.0, 1.0)
+        elseif dest == "ChatFrame2" then
+            ChatFrame2:AddMessage(message, 1.0, 1.0, 1.0)
+        elseif dest == "ChatFrame3" then
+            ChatFrame3:AddMessage(message, 1.0, 1.0, 1.0)
+        elseif dest == "ChatFrame4" then
+            ChatFrame4:AddMessage(message, 1.0, 1.0, 1.0)
+        elseif dest == "ChatFrame5" then
+            ChatFrame5:AddMessage(message, 1.0, 1.0, 1.0)
+        elseif dest == "ChatFrame6" then
+            ChatFrame6:AddMessage(message, 1.0, 1.0, 1.0)
+        elseif dest == "ChatFrame7" then
+            ChatFrame7:AddMessage(message, 1.0, 1.0, 1.0)
+        elseif dest == "ChatFrame8" then
+            ChatFrame8:AddMessage(message, 1.0, 1.0, 1.0)
+        elseif dest == "ChatFrame9" then
+            ChatFrame9:AddMessage(message, 1.0, 1.0, 1.0)
+        elseif dest == "ChatFrame10" then
+            ChatFrame10:AddMessage(message, 1.0, 1.0, 1.0)
+        else
+            print("Unrecognized printOutput selection")
+        end
     end
 end
 
@@ -300,6 +338,10 @@ function TrimRealmName(author)
     end
 
     return name
+end
+
+function interp(s, tab) -- named format replacement [http://lua-users.org/wiki/StringInterpolation]
+    return (s:gsub('($%b{})', function(w) return tab[w:sub(3, -2)] or w end))
 end
 
 -------------------------------------------------------------

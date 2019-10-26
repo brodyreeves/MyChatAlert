@@ -6,6 +6,7 @@ MyChatAlert.defaults = {
         soundOn = true,
         sound = "881",
         printOn = true,
+        printOutput = "DEFAULT_CHAT_FRAME",
         triggers = {},
         filterWords = {},
         ignoredAuthors = {},
@@ -14,12 +15,27 @@ MyChatAlert.defaults = {
     }
 }
 
+MyChatAlert.outputFrames = {
+    [1] = {readable = L["Default Chat Frame"], frame = "DEFAULT_CHAT_FRAME"},
+    [2] = {readable = L["Error Frame"], frame = "UIErrorsFrame"},
+    [3] = {readable = format(L["Chat Frame %i"], 1), frame = "ChatFrame1"},
+    [4] = {readable = format(L["Chat Frame %i"], 2), frame = "ChatFrame2"},
+    [5] = {readable = format(L["Chat Frame %i"], 3), frame = "ChatFrame3"},
+    [6] = {readable = format(L["Chat Frame %i"], 4), frame = "ChatFrame4"},
+    [7] = {readable = format(L["Chat Frame %i"], 5), frame = "ChatFrame5"},
+    [8] = {readable = format(L["Chat Frame %i"], 6), frame = "ChatFrame6"},
+    [9] = {readable = format(L["Chat Frame %i"], 7), frame = "ChatFrame7"},
+    [10] = {readable = format(L["Chat Frame %i"], 8), frame = "ChatFrame8"},
+    [11] = {readable = format(L["Chat Frame %i"], 9), frame = "ChatFrame9"},
+    [12] = {readable = format(L["Chat Frame %i"], 10), frame = "ChatFrame10"},
+}
+
 local channelToDelete, selectedChannel, wordToDelete, filterToDelete, authorToDelete = nil, nil, nil, nil, nil
-local availableChannels = {} -- cache available channels to quick-add
-local addedChannels = {}
-local addedWords = {}
-local addedFilters = {}
-local addedAuthors = {}
+local availableChannels = {} -- cache available channels for quick-add
+local addedChannels = {} -- cache added channels for removal
+local addedWords = {} -- cache added words for removal
+local addedFilters = {} -- cache added filters for removal
+local addedAuthors = {} -- cache added authors for removal
 
 MyChatAlert.options = {
     name = L["MyChatAlert"],
@@ -88,7 +104,23 @@ MyChatAlert.options = {
                     set = function(info, val) MyChatAlert.db.profile.printOn = val end,
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
-                -- TODO: option for where to output the printed alerts
+                printOutput = {
+                    name = L["Destination"],
+                    desc = L["Where to output printed alerts"],
+                    type = "select", order = 2, width = 1,
+                    values = function()
+                        local availableOutputs = {}
+
+                        for k, option in pairs(MyChatAlert.outputFrames) do
+                            availableOutputs[k] = option.readable
+                        end
+
+                        return availableOutputs
+                    end,
+                    get = function(info) return MyChatAlert.db.profile.printOutput end,
+                    set = function(info, val) MyChatAlert.db.profile.printOutput = val end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.printOn end,
+                },
             },
         },
         channels = {
@@ -102,12 +134,12 @@ MyChatAlert.options = {
                     values = function()
                         availableChannels = {} -- flush for recreation
 
-                        availableChannels[#availableChannels + 1] = L["MyChatAlert Global Keywords"])
+                        availableChannels[#availableChannels + 1] = L["MyChatAlert Global Keywords"]
 
                         for i = 1, NUM_CHAT_WINDOWS do
                             local num, name = GetChannelName(i)
                             if num > 0 then -- number channel, e.g. 2. Trade - City
-                                local channel = num .. ". " .. name
+                                local channel = num .. L["Number delimiter"] .. " " .. name
                                 availableChannels[#availableChannels + 1] = channel
                             else
                                 availableChannels[#availableChannels + 1] = name
