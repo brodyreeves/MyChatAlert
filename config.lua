@@ -54,6 +54,25 @@ MyChatAlert.options = {
                 end
             end,
         },
+        inInstance = {
+            name = L["Disable in instance"],
+            desc = L["Disable alerts while in an instance"],
+            type = "toggle", order = 2, width = 0.85,
+            get = function(info) return MyChatAlert.db.profile.disableInInstance end,
+            set = function(info, val)
+                MyChatAlert.db.profile.disableInInstance = val
+                if val then
+                    MyChatAlert:UnregisterEvent("ZONE_CHANGED")
+                    MyChatAlert:UnregisterEvent("ZONE_CHANGED_INDOORS")
+                    MyChatAlert:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
+                else
+                    MyChatAlert:RegisterEvent("ZONE_CHANGED")
+                    MyChatAlert:RegisterEvent("ZONE_CHANGED_INDOORS")
+                    MyChatAlert:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+                end
+            end,
+            disabled = function() return not MyChatAlert.db.profile.enabled end,
+        },
         minimap = {
             name = L["Minimap"],
             desc = L["Enable/disable the minimap button"],
@@ -194,6 +213,8 @@ MyChatAlert.options = {
                     type = "execute", order = 3, width = 0.8,
                     func = function()
                         if not channelToDelete then return end
+
+                        MyChatAlert:UnregisterEvent(addedChannels[channelToDelete])
 
                         MyChatAlert.db.profile.triggers[addedChannels[channelToDelete]] = nil
                         MyChatAlert.db.profile.filterWords[addedChannels[channelToDelete]] = nil

@@ -12,6 +12,8 @@
   - `+` for additional terms to match
   - ex: `lf+dps-brd` will alert for a message containing `lf`, `dps`, without `brd`
   - ex: in this example, "lf2m dps brd farm" wouldn't trigger an alert, but "lf2m dps hogger farm" would
+- New feature: Disable in instance
+  - With this option selected, alerts will be toggled off while you are inside an instanced zone (determined via [IsInInstance](https://wow.gamepedia.com/API_IsInInstance))
 
 ## 2.4.2
 

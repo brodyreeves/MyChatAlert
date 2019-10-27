@@ -36,7 +36,8 @@ function MyChatAlert:OnInitialize()
 end
 
 function MyChatAlert:OnEnable()
-    if not self.db.profile.enabled then return end
+    local _, type = IsInInstance()
+    if not self.db.profile.enabled or (self.db.profile.disableInInstance and type and type ~= "none") then return end
 
     local chat_msg_chan = false
 
@@ -49,10 +50,17 @@ function MyChatAlert:OnEnable()
             chat_msg_chan = true
         end
     end
+
+    if self.db.profile.disableInInstance then
+        self:RegisterEvent("ZONE_CHANGED")
+        self:RegisterEvent("ZONE_CHANGED_INDOORS")
+        self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+    end
 end
 
 function MyChatAlert:OnDisable()
-    if self.db.profile.enabled then return end
+    local _, type = IsInInstance()
+    if self.db.profile.enabled and ((type and type == "none") or not self.db.profile.disableInInstance) then return end
 
     self:UnregisterEvent("CHAT_MSG_CHANNEL")
     for _, event in pairs(self.eventMap) do self:UnregisterEvent(event) end
@@ -211,6 +219,18 @@ function MyChatAlert:CheckAlert(event, message, author, channel)
         end
     end
 end
+
+function MyChatAlert:ZONE_CHANGED()
+    local _, type = IsInInstance()
+
+    if type == "none" then self:OnEnable()
+    elseif self.db.profile.disableInInstance and type and type ~= "none" then self:OnDisable()
+    end
+end
+
+function MyChatAlert:ZONE_CHANGED_INDOORS() self:ZONE_CHANGED() end
+
+function MyChatAlert:ZONE_CHANGED_NEW_AREA() self:ZONE_CHANGED() end
 
 -------------------------------------------------------------
 ----------------------- CHAT COMMANDS -----------------------
