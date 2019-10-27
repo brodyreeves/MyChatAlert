@@ -1,5 +1,18 @@
 # MyChatAlert
 
+## 2.4.3
+
+- New feature: Time-based duplication filter
+  - If the same person sends the same alert-triggering message within `X` seconds and the alert is still in-frame, don't trigger another alert for that message ([discussion over scope of this feature](https://github.com/brodyreeves/MyChatAlert/issues/27))
+- New feature: Section for global keywords
+  - These keywords will trigger alerts in any channels that you've added
+- New feature: Choose where printed alerts will be output to
+- New feature: Keywords now support operators:
+  - `-` for terms to suppress alerts
+  - `+` for additional terms to match
+  - ex: `lf+dps-brd` will alert for a message containing `lf`, `dps`, without `brd`
+  - ex: in this example, "lf2m dps brd farm" wouldn't trigger an alert, but "lf2m dps hogger farm" would
+
 ## 2.4.2
 
 - Bug: Fixed the issue where alerts would be enabled on log-in, regardless of the option

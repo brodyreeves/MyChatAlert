@@ -77,27 +77,8 @@ MyChatAlert.eventMap = {
 }
 
 function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel)
-    if self:AuthorIgnored(TrimRealmName(author)) then return end
-    if self:MessageIgnored(message, channel) then return end
-    if self:IsDuplicateMessage(message, TrimRealmName(author)) then return end
-
-    for ch, words in pairs(self.db.profile.triggers) do -- find the channel
-        if channel:lower() == ch:lower() then
-            for _, word in pairs(self.db.profile.triggers[L["MyChatAlert Global Keywords"]]) do -- check global keywords after matching the channel to ensure channel is added
-                if message:lower():find(word:lower()) then
-                    self:AddAlert(word, TrimRealmName(author), message, "*" .. channel)
-                    return
-                end
-            end
-
-            for _, word in pairs(words) do -- find the word
-                if message:lower():find(word:lower()) then -- Alert message
-                    self:AddAlert(word, TrimRealmName(author), message, channel)
-                    return -- matched the message, stop
-                end
-            end
-            break -- matched the channel so stop looping
-        end
+    if self.db.profile.triggers and self.db.profile.triggers[channel] then
+        self:CheckAlert(event, message, author, channel)
     end
 end
 
@@ -165,16 +146,68 @@ function MyChatAlert:CheckAlert(event, message, author, channel)
     if self:IsDuplicateMessage(message, TrimRealmName(author)) then return end
 
     for _, word in pairs(self.db.profile.triggers[L["MyChatAlert Global Keywords"]]) do -- check global keywords after matching the channel to ensure channel is added
-        if message:lower():find(word:lower()) then
-            self:AddAlert(word, TrimRealmName(author), message, "*" .. channel)
+        local match = true
+
+        if word:find("[-+]") then -- advanced pattern matching
+            if not word:sub(1, 1):find("[-+]") then
+                -- the word contains -+ operators, but doesn't start with one
+                -- something along the form of lf+tank-brs
+                local i, _ = word:find("[-+]")
+                if not message:lower():find(word:sub(1, i - 1)) then match = false end
+            end
+
+            if match then -- no need to check if we have already determined not a match via first term
+                for subword in word:lower():gmatch("[-+]%a+") do -- split by operators
+                    if match then -- no need to check if we have already determined not a match via previous subword
+                        if subword:sub(1, 1) == "+" then -- need to find additional terms
+                            if not message:lower():find(subword:sub(2, -1)) then match = false end
+                        elseif subword:sub(1, 1) == "-" then -- need to not find these terms
+                            if message:lower():find(subword:sub(2, -1)) then match = false end
+                        else
+                            print("[MCA Panic!] (core:167) Unexpected operator found") -- BUG CATCH error 167 #1
+                        end
+                    end
+                end
+            end
+
+        elseif not message:lower():find(word:lower()) then match = false end
+
+        if match then
+            self:AddAlert("*" .. word:sub(1, 11), TrimRealmName(author), message, channel:sub(1, 18)) -- :sub() just to help keep display width under control
             return
         end
     end
 
-    for _, word in pairs(self.db.profile.triggers[channel]) do -- find the word
-        if message:lower():find(word:lower()) then -- Alert message
-            self:AddAlert(word, TrimRealmName(author), message, channel)
-            return -- matched the message, stop
+    for _, word in pairs(self.db.profile.triggers[channel]) do -- find the non-global keywords
+        local match = true
+
+        if word:find("[-+]") then -- advanced pattern matching
+            if not word:sub(1, 1):find("[-+]") then
+                -- the word contains -+ operators, but doesn't start with one
+                -- something along the form of lf+tank-brs
+                local i, _ = word:find("[-+]")
+                if not message:lower():find(word:sub(1, i - 1)) then match = false end
+            end
+
+            if match then -- no need to check if we have already determined not a match via first term
+                for subword in word:lower():gmatch("[-+]%a+") do -- split by operators
+                    if match then -- no need to check if we have already determined not a match via previous subword
+                        if subword:sub(1, 1) == "+" then -- need to find additional terms
+                            if not message:lower():find(subword:sub(2, -1)) then match = false end
+                        elseif subword:sub(1, 1) == "-" then -- need to not find these terms
+                            if message:lower():find(subword:sub(2, -1)) then match = false end
+                        else
+                            print("[MCA Panic!] (core:167) Unexpected operator found") -- BUG CATCH error 167 #2
+                        end
+                    end
+                end
+            end
+
+        elseif not message:lower():find(word:lower()) then match = false end
+
+        if match then
+            self:AddAlert(word:sub(1, 12), TrimRealmName(author), message, channel:sub(1, 18)) -- :sub() just to help keep display width under control
+            return
         end
     end
 end
@@ -321,7 +354,7 @@ function MyChatAlert:AddAlert(word, author, msg, channel) -- makes sure no more 
         elseif dest == "ChatFrame10" then
             ChatFrame10:AddMessage(message, 1.0, 1.0, 1.0)
         else
-            print("Unrecognized printOutput selection")
+            print("[MCA Panic!] (core:332) Unrecognized printOutput selection") -- BUG CATCH error 332
         end
     end
 end
@@ -370,6 +403,7 @@ function MyChatAlert:AuthorIgnored(author)
 end
 
 function MyChatAlert:MessageIgnored(message, channel)
+    -- ignore message due to containing a filtered word
     if self.db.profile.filterWords and self.db.profile.filterWords[channel] then
         for _, word in pairs(self.db.profile.filterWords[channel]) do
             if message:lower():find(word:lower()) then return true end
