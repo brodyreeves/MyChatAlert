@@ -318,6 +318,12 @@ function MyChatAlert:CreateAlertFrame()
         for i, alert in pairs(self.alertFrame.alerts) do self.alertFrame.AddEntry(i, alert, self.alertFrame.frame) end
         self.alertFrame.frame:SetStatusText(format(L["Number of alerts: %s"], #self.alertFrame.alerts))
     end)
+
+    self.alertFrame.frame.frame:SetScript("OnKeyDown", function(self, key)
+        if key == "ESCAPE" and self:IsVisible() then self:Hide() end
+    end)
+
+    self.alertFrame.frame.frame:SetPropagateKeyboardInput(true)
 end
 
 function MyChatAlert:ToggleAlertFrame()
