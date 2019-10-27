@@ -15,6 +15,8 @@
 - New feature: Disable in instance
   - With this option selected, alerts will be toggled off while you are inside an instanced zone (determined via [IsInInstance](https://wow.gamepedia.com/API_IsInInstance))
 - `Escape` key will now close the alert frame
+- New Feature: Customize the printed alert messages
+  - Color customization coming soon
 
 ## 2.4.2
 
