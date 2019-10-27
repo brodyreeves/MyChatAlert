@@ -140,6 +140,16 @@ MyChatAlert.options = {
                     set = function(info, val) MyChatAlert.db.profile.printOutput = val end,
                     disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.printOn end,
                 },
+                printMessage = {
+                    name = L["Print Message"],
+                    desc = L["Override the default printed alert message. Enter 'DEFAULT' to revert back to default message. Supported text replacements are: '${keyword}', '${author}', '${message}'"],
+                    type = "input", order = 3, width = 1,
+                    get = function(info) return MyChatAlert.db.profile.printedMessage end,
+                    set = function(info, val)
+                        if val == "DEFAULT" then MyChatAlert.db.profile.printedMessage = nil
+                        else MyChatAlert.db.profile.printedMessage = val end end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.printOn end,
+                }
             },
         },
         channels = {

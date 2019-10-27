@@ -346,14 +346,23 @@ function MyChatAlert:AddAlert(word, author, msg, channel) -- makes sure no more 
     if self.db.profile.printOn then
         local dest = self.outputFrames[self.db.profile.printOutput].frame
 
+        local keywordColor = "|cFFFFFF00"
+        local authorColor = "|cFFFFFF00"
+        local messageColor = "|cFFFFFF00"
+
         local message = interp(L["Printed alert"], {
-            keyword = word,
-            author = "|Hplayer:" .. author .. ":0|h" .. author .. "|h",
-            message = msg,
-            keywordColor = "|cFFFFFF00",
-            authorColor = "|cFFFFFF00",
-            messageColor = "|cFFFFFF00",
+            keyword = keywordColor .. word .. "|r",
+            author = authorColor .. "|Hplayer:" .. author .. ":0|h" .. author .. "|h" .. "|r",
+            message = messageColor .. msg .. "|r",
         })
+
+        if self.db.profile.printedMessage then -- user has overridden the message
+            message = interp(self.db.profile.printedMessage, {
+                keyword = keywordColor .. word .. "|r",
+                author = authorColor .. "|Hplayer:" .. author .. ":0|h" .. author .. "|h" .. "|r",
+                message = messageColor .. msg .. "|r",
+            })
+        end
 
         if dest == "DEFAULT_CHAT_FRAME" then
             DEFAULT_CHAT_FRAME:AddMessage(message, 1.0, 1.0, 1.0)
