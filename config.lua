@@ -7,6 +7,11 @@ MyChatAlert.defaults = {
         sound = "881",
         printOn = true,
         printOutput = "DEFAULT_CHAT_FRAME",
+        printedMessage = nil,
+        baseColor = {r = 1, g = 1, b = 1}, -- defaults to white #FFFFFF
+        keywordColor = {r = 1, g = 1, b = 0}, -- defaults to yellow #FFFFFF00
+        authorColor = {r = 1, g = 1, b = 0}, -- defaults to yellow #FFFFFF00
+        messageColor = {r = 1, g = 1, b = 0}, -- defaults to yellow #FFFFFF00
         triggers = {},
         filterWords = {},
         ignoredAuthors = {},
@@ -149,6 +154,70 @@ MyChatAlert.options = {
                         if val == "DEFAULT" then MyChatAlert.db.profile.printedMessage = nil
                         else MyChatAlert.db.profile.printedMessage = val end end,
                     disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.printOn end,
+                },
+                baseColor = {
+                    name = L["Base Text Color"],
+                    desc = L["Color of the printed alert message"],
+                    type = "color", order = 4,
+                    hasAlpha = false,
+                    get = function() return MyChatAlert.db.profile.baseColor.r, MyChatAlert.db.profile.baseColor.g, MyChatAlert.db.profile.baseColor.b end,
+                    set = function(_, r, g, b)
+                        MyChatAlert.db.profile.baseColor.r = r
+                        MyChatAlert.db.profile.baseColor.g = g
+                        MyChatAlert.db.profile.baseColor.b = b
+                    end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.printOn end,
+                },
+                keywordColor = {
+                    name = L["Keyword Color"],
+                    desc = L["Color of the keyword in the printed alert"],
+                    type = "color", order = 5,
+                    hasAlpha = false,
+                    get = function() return MyChatAlert.db.profile.keywordColor.r, MyChatAlert.db.profile.keywordColor.g, MyChatAlert.db.profile.keywordColor.b end,
+                    set = function(_, r, g, b)
+                        MyChatAlert.db.profile.keywordColor.r = r
+                        MyChatAlert.db.profile.keywordColor.g = g
+                        MyChatAlert.db.profile.keywordColor.b = b
+                    end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.printOn end,
+                },
+                authorColor = {
+                    name = L["Author Color"],
+                    desc = L["Color of the author in the printed alert"],
+                    type = "color", order = 6,
+                    hasAlpha = false,
+                    get = function() return MyChatAlert.db.profile.authorColor.r, MyChatAlert.db.profile.authorColor.g, MyChatAlert.db.profile.authorColor.b end,
+                    set = function(_, r, g, b)
+                        MyChatAlert.db.profile.authorColor.r = r
+                        MyChatAlert.db.profile.authorColor.g = g
+                        MyChatAlert.db.profile.authorColor.b = b
+                    end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.printOn end,
+                },
+                messageColor = {
+                    name = L["Message Color"],
+                    desc = L["Color of the message in the printed alert"],
+                    type = "color", order = 7,
+                    hasAlpha = false,
+                    get = function() return MyChatAlert.db.profile.messageColor.r, MyChatAlert.db.profile.messageColor.g, MyChatAlert.db.profile.messageColor.b end,
+                    set = function(_, r, g, b)
+                        MyChatAlert.db.profile.messageColor.r = r
+                        MyChatAlert.db.profile.messageColor.g = g
+                        MyChatAlert.db.profile.messageColor.b = b
+                    end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.printOn end,
+                },
+                resetColors = {
+                    name = L["Reset Colors"],
+                    desc = L["Reset ALL the printed alert colors to their default values"],
+                    type = "execute", order = 8, width = 0.8,
+                    func = function()
+                        MyChatAlert.db.profile.baseColor = {r = 1, g = 1, b = 1}
+                        MyChatAlert.db.profile.keywordColor = {r = 1, g = 1, b = 0}
+                        MyChatAlert.db.profile.authorColor = {r = 1, g = 1, b = 0}
+                        MyChatAlert.db.profile.messageColor = {r = 1, g = 1, b = 0}
+                    end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.printOn end,
                 }
             },
         },
@@ -176,7 +245,6 @@ MyChatAlert.options = {
                         end
 
                         -- standard, non-numbered channels
-                        -- TODO: check if these are the actual channel names
                         availableChannels[#availableChannels + 1] = L["Guild"]
                         --availableChannels[#availableChannels + 1] = L["Loot"]
                         availableChannels[#availableChannels + 1] = L["Officer"]

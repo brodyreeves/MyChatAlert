@@ -358,23 +358,18 @@ function MyChatAlert:AddAlert(word, author, msg, channel) -- makes sure no more 
     if self.db.profile.printOn then
         local dest = self.outputFrames[self.db.profile.printOutput].frame
 
-        local keywordColor = "|cFFFFFF00"
-        local authorColor = "|cFFFFFF00"
-        local messageColor = "|cFFFFFF00"
+        local baseColor = rgbToHex({self.db.profile.baseColor.r, self.db.profile.baseColor.g, self.db.profile.baseColor.b})
+        local keywordColor = rgbToHex({self.db.profile.keywordColor.r, self.db.profile.keywordColor.g, self.db.profile.keywordColor.b})
+        local authorColor = rgbToHex({self.db.profile.authorColor.r, self.db.profile.authorColor.g, self.db.profile.authorColor.b})
+        local messageColor = rgbToHex({self.db.profile.messageColor.r, self.db.profile.messageColor.g, self.db.profile.messageColor.b})
 
-        local message = interp(L["Printed alert"], {
-            keyword = keywordColor .. word .. "|r",
-            author = authorColor .. "|Hplayer:" .. author .. ":0|h" .. author .. "|h" .. "|r",
-            message = messageColor .. msg .. "|r",
-        })
+        local replacement = {
+            keyword = keywordColor .. word .. baseColor,
+            author = authorColor .. "|Hplayer:" .. author .. ":0|h" .. author .. "|h" .. baseColor,
+            message = messageColor .. msg .. baseColor,
+        }
 
-        if self.db.profile.printedMessage then -- user has overridden the message
-            message = interp(self.db.profile.printedMessage, {
-                keyword = keywordColor .. word .. "|r",
-                author = authorColor .. "|Hplayer:" .. author .. ":0|h" .. author .. "|h" .. "|r",
-                message = messageColor .. msg .. "|r",
-            })
-        end
+        local message = baseColor .. interp(self.db.profile.printedMessage or L["Printed alert"], replacement)
 
         if dest == "DEFAULT_CHAT_FRAME" then
             DEFAULT_CHAT_FRAME:AddMessage(message, 1.0, 1.0, 1.0)
@@ -422,6 +417,33 @@ end
 
 function interp(s, tab) -- named format replacement [http://lua-users.org/wiki/StringInterpolation]
     return (s:gsub('($%b{})', function(w) return tab[w:sub(3, -2)] or w end))
+end
+
+function rgbToHex(rgb) -- color form converter [https://gist.github.com/marceloCodget/3862929]
+    -- local hexadecimal = '0X'
+    local hexadecimal = '|cFF' -- prefix for wow coloring escape is |c, FF is the alpha portion
+
+    for key, value in pairs(rgb) do
+        local hex = ''
+        value = math.floor(value * 255) -- uses rgb on a scale of 0-1, scale it up for this conversion
+
+        while(value > 0)do
+            local index = math.fmod(value, 16) + 1
+            value = math.floor(value / 16)
+            hex = string.sub('0123456789ABCDEF', index, index) .. hex
+        end
+
+        if(string.len(hex) == 0)then
+            hex = '00'
+
+        elseif(string.len(hex) == 1)then
+            hex = '0' .. hex
+        end
+
+        hexadecimal = hexadecimal .. hex
+    end
+
+    return hexadecimal
 end
 
 -------------------------------------------------------------
