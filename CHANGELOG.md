@@ -1,5 +1,9 @@
 # MyChatAlert
 
+## 2.4.4.2
+
+- Fix bugged default value for printOutput frame
+
 ## 2.4.4
 
 - New feature: chat command to ignore names

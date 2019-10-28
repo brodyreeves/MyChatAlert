@@ -6,7 +6,7 @@ MyChatAlert.defaults = {
         soundOn = true,
         sound = "881",
         printOn = true,
-        printOutput = "DEFAULT_CHAT_FRAME",
+        printOutput = 1,
         printedMessage = nil,
         baseColor = {r = 1, g = 1, b = 1}, -- defaults to white #FFFFFF
         keywordColor = {r = 1, g = 1, b = 0}, -- defaults to yellow #FFFFFF00
