@@ -473,12 +473,12 @@ MyChatAlert.options = {
                 },
             },
         },
+        --[[ Disabled due to not working, no demand/no plans to fix it 10/28/19
         miscOptions = {
             name = L["Misc Options"],
             type = "group", inline = true, order = 99,
             args = {
                 globalIgnoreListFilter = {
-                    -- FIXME: filter currently not working
                     name = L["Filter with GlobalIgnoreList"],
                     desc = L["Ignore messages from players on your ignore list"],
                     type = "toggle", order = 1, width = 1.15,
@@ -489,5 +489,6 @@ MyChatAlert.options = {
                 },
             },
         },
+        --]]
     },
 }

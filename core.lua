@@ -457,7 +457,7 @@ function MyChatAlert:AuthorIgnored(author)
         if author == name then return true end
     end
 
-    --[[ FIXME: GlobalIgnoreList filter not working (test after fixing return value)
+    --[[ Disabled due to not working, no demand/no plans to fix it 10/28/19
         -- optional globalignorelist check
         if self.db.profile.globalignorelist then
             for i = 1, #GlobalIgnoreDB.ignoreList do
