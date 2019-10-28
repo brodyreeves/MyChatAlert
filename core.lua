@@ -237,7 +237,19 @@ function MyChatAlert:ZONE_CHANGED_NEW_AREA() self:ZONE_CHANGED() end
 -------------------------------------------------------------
 
 function MyChatAlert:ChatCommand(arg)
-    if arg == "alerts" then self:ToggleAlertFrame()
+    -- MyChatAlert Chat Commands:
+    -- 1) `/mca alerts` -> Toggles the alert frame
+    -- 2) `/mca ignore {player}` -> Adds `player` to the ignored name list
+    -- 3) `/mca` -> Opens the addon's options panel [Default command if nothing else is
+    --              matched]
+
+    local arg1, arg2 = self:GetArgs(arg, 2)
+    if arg1 == "alerts" then self:ToggleAlertFrame()
+    elseif arg1 == "ignore" then
+        if arg2 and arg2 ~= "" and not arg2:find("%A") then
+            -- want to make sure arg2 (name) exists and only contains letters
+            tinsert(self.db.profile.ignoredAuthors, arg2)
+        end
     else -- just open the options
         InterfaceOptionsFrame_OpenToCategory(self.optionsFrame) -- need two calls
         InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
