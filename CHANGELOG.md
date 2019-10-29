@@ -1,5 +1,12 @@
 # MyChatAlert
 
+## 2.4.4.3
+
+- Another bug fix, sanity check when checking global keywords
+- Also caught potential bug when manually entering a channel name
+- Also caught bug with unregistering events when deleting channels
+- Added missing default value for disableInInstance
+
 ## 2.4.4.2
 
 - Fix bugged default value for printOutput frame

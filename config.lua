@@ -3,6 +3,8 @@ local L = LibStub("AceLocale-3.0"):GetLocale("MyChatAlert", false)
 MyChatAlert.defaults = {
     profile = {
         enabled = true,
+        disableInInstance = false,
+        dedupTime = 0,
         soundOn = true,
         sound = "881",
         printOn = true,
@@ -15,7 +17,6 @@ MyChatAlert.defaults = {
         triggers = {},
         filterWords = {},
         ignoredAuthors = {},
-        dedupTime = 0,
         globalIgnoreListFilter = false,
     }
 }
@@ -292,7 +293,9 @@ MyChatAlert.options = {
                     func = function()
                         if not channelToDelete then return end
 
-                        MyChatAlert:UnregisterEvent(addedChannels[channelToDelete])
+                        if MyChatAlert.eventMap[addedChannels[channelToDelete]] then
+                            MyChatAlert:UnregisterEvent(MyChatAlert.eventMap[addedChannels[channelToDelete]])
+                        end -- else could check if any other channels added for "CHAT_MSG_CHANNEL" and if not unregister
 
                         MyChatAlert.db.profile.triggers[addedChannels[channelToDelete]] = nil
                         MyChatAlert.db.profile.filterWords[addedChannels[channelToDelete]] = nil
@@ -301,6 +304,7 @@ MyChatAlert.options = {
                         if selectedChannel and selectedChannel >= channelToDelete then -- messes up index accessing
                             selectedChannel = nil
                             wordToDelete = nil
+                            filterToDelete = nil
                         end
                         channelToDelete = nil
                     end,
@@ -313,7 +317,7 @@ MyChatAlert.options = {
                     set = function(info, val)
                         if val ~= "" and not MyChatAlert.db.profile.triggers[val] then
                             MyChatAlert.db.profile.triggers[val] = {}
-                            MyChatAlert.db.profile.filterWords[availableChannels[val]] = {}
+                            MyChatAlert.db.profile.filterWords[val] = {}
                         end
                     end,
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
