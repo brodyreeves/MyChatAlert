@@ -1,5 +1,12 @@
 # MyChatAlert
 
+## 2.4.5
+
+- Keywords will not be colored in the printed message alerts
+  - I noticed some strange coloring behavior when testing this, but I think I got it all fixed. If you notice something behaving weird try to grab a screenshot and let me know ([Github issues](https://github.com/brodyreeves/MyChatAlert/issues) are probably best for this, over curseforge comments, so that it's all grouped together in one post)
+  - Messages in the alert frame will not be colored, personally I think it looks better uncolored, is easier to read, and I noticed a lot of weird coloring stuff happening in the frame so it's overall easier
+- Performance changes + code cleanup
+
 ## 2.4.4.3
 
 - Another bug fix, sanity check when checking global keywords

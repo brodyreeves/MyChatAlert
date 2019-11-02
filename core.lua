@@ -4,7 +4,7 @@ local AceGUI = LibStub("AceGUI-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("MyChatAlert")
 
 -- declare local functions
-local TrimRealmName, interp, rgbToHex, MessageHasTrigger
+local TrimRealmName, interp, rgbToHex, MessageHasTrigger, ColorWord
 
 -- localize global functions
 local format, pairs, tinsert, tremove, sub, find, time, gsub, floor, fmod, lower = string.format, pairs, table.insert, table.remove, string.sub, string.find, time, string.gsub, math.floor, math.fmod, string.lower
@@ -105,14 +105,14 @@ function MyChatAlert:CHAT_MSG_LOOT(event, message)
     -- TODO: test this
     for _, word in pairs(self.db.profile.triggers[L["MyChatAlert Global Keywords"]]) do
         if message:lower():find(word:lower()) then
-            self:AddAlert(word, UnitName("player"), message, "*" .. L["Loot"])
+            self:AddAlert(word, UnitName("player"), "*" .. L["Loot"], message, message)
             return
         end
     end
 
     for _, word in pairs(self.db.profile.triggers[L["Loot"]]) do -- find the word
         if message:lower():find(word:lower()) then -- Alert message
-            self:AddAlert(word, UnitName("player"), message, L["Loot"])
+            self:AddAlert(word, UnitName("player"), L["Loot"], message, message)
             return -- matched the message, stop
         end
     end
@@ -160,20 +160,20 @@ function MyChatAlert:CheckAlert(event, message, author, channel)
     if self:MessageIgnored(message, channel) then return end
     if self:IsDuplicateMessage(message, TrimRealmName(author)) then return end
 
-    local match = nil
+    local match, coloredMsg = nil, nil
 
     if self.db.profile.triggers[L["MyChatAlert Global Keywords"]] then -- need to check global keywords
-        match = MessageHasTrigger(message, L["MyChatAlert Global Keywords"])
+        match, coloredMsg = MessageHasTrigger(message, L["MyChatAlert Global Keywords"])
         if match then
-            self:AddAlert("*" .. match:sub(1, 11), TrimRealmName(author), message, channel:sub(1, 18)) -- :sub() just to help keep display width under control
+            self:AddAlert("*" .. match:sub(1, 11), TrimRealmName(author), channel:sub(1, 18), message, coloredMsg) -- :sub() just to help keep display width under control
             return
         end
     end
 
     -- now check channel keywords
-    match = MessageHasTrigger(message, channel)
+    match, coloredMsg = MessageHasTrigger(message, channel)
     if match then
-        self:AddAlert(match:sub(1, 12), TrimRealmName(author), message, channel:sub(1, 18)) -- :sub() just to help keep display width under control
+        self:AddAlert(match:sub(1, 11), TrimRealmName(author), channel:sub(1, 18), message, coloredMsg) -- :sub() just to help keep display width under control
     end
 end
 
@@ -301,7 +301,7 @@ function MyChatAlert:ToggleAlertFrame()
     end
 end
 
-function MyChatAlert:AddAlert(word, author, msg, channel) -- makes sure no more than 15 alerts are stored
+function MyChatAlert:AddAlert(word, author, channel, msg, coloredMsg) -- makes sure no more than 15 alerts are stored
     if #self.alertFrame.alerts == self.alertFrame.MAX_ALERTS_TO_KEEP then tremove(self.alertFrame.alerts, 1) end -- remove first/oldest alert
     tinsert(self.alertFrame.alerts, {word = word, author = author, msg = msg, channel = channel, time = time()}) -- insert alert
 
@@ -323,7 +323,7 @@ function MyChatAlert:AddAlert(word, author, msg, channel) -- makes sure no more 
         local replacement = {
             keyword = keywordColor .. word .. baseColor,
             author = authorColor .. "|Hplayer:" .. author .. ":0|h" .. author .. "|h" .. baseColor,
-            message = messageColor .. msg .. baseColor,
+            message = messageColor .. coloredMsg .. baseColor,
         }
 
         local message = baseColor .. interp(self.db.profile.printedMessage or L["Printed alert"], replacement)
@@ -407,27 +407,57 @@ MessageHasTrigger = function(message, channel)
     -- don't need to check existence here because it's already been checked
     -- named channels with own events have their table created when event is registered
     -- general channels with CHAT_MSG_CHANNEL get checked before entering the function
+    local msg = message
+
     for _, word in pairs(MyChatAlert.db.profile.triggers[channel]) do -- find the non-global keywords
         if word:find("[-+]") then -- advanced pattern matching
             if not word:sub(1, 1):find("[-+]") then
                 -- the word contains -+ operators, but doesn't start with one
                 -- something along the form of lf+tank-brs
-                local i, _ = word:find("[-+]") -- find first operator to split first term off
-                if not message:lower():find(word:sub(1, i - 1)) then return nil end
+                local firstOp, _ = word:find("[-+]") -- find first operator to split first term off
+                local wordStart, wordEnd = message:lower():find(word:lower():sub(1, firstOp - 1)) -- try to find first term in message
+
+                if not wordStart then return nil -- didnt find it
+                else -- surround keyword with color flags and continue matching terms
+                    msg = ColorWord(wordStart, wordEnd, msg)
+                end
+
             end
 
             for subword in word:lower():gmatch("[-+]%a+") do -- split by operators
-                if subword:sub(1, 1) == "+" then -- need to find additional terms
-                    if not message:lower():find(subword:sub(2, -1)) then return nil end
-                elseif subword:sub(1, 1) == "-" then -- need to not find these terms
-                    if message:lower():find(subword:sub(2, -1)) then return nil end
+                local wordStart, wordEnd = message:lower():find(subword:sub(2, -1)) -- find term in message
+
+                if subword:sub(1, 1) == "+" then -- want term to be in the message
+                    if not wordStart then return nil end
+                else -- '-' operator, don't want term to be in message
+                    if wordStart then return nil end
                 end
+
+                -- if term was found then color it
+                if wordStart then msg = ColorWord(wordStart, wordEnd, msg) end
             end
 
-        elseif not message:lower():find(word:lower()) then return nil end
+        else -- simple word matching
+            local wordStart, wordEnd = message:lower():find(word:lower()) -- find word in message
 
-        return word
+            if not wordStart then return nil end -- word wasn't found
+
+            msg = ColorWord(wordStart, wordEnd, msg)
+        end
+
+        return word, msg
     end
+end
+
+ColorWord = function(wordStart, wordEnd, message)
+    -- split message apart like: {Message before word}, {Word}, {Message after word}
+    -- and insert color flags around {Word} portion
+    local keywordColor = rgbToHex({MyChatAlert.db.profile.keywordColor.r, MyChatAlert.db.profile.keywordColor.g, MyChatAlert.db.profile.keywordColor.b})
+    local messageColor = rgbToHex({MyChatAlert.db.profile.messageColor.r, MyChatAlert.db.profile.messageColor.g, MyChatAlert.db.profile.messageColor.b})
+
+    return message:sub(1, wordStart - 1) ..
+        keywordColor .. message:sub(wordStart, wordEnd) .. messageColor ..
+        message:sub(wordEnd + 1, -1)
 end
 
 -------------------------------------------------------------
