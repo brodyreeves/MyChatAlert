@@ -153,75 +153,20 @@ function MyChatAlert:CheckAlert(event, message, author, channel)
     if self:MessageIgnored(message, channel) then return end
     if self:IsDuplicateMessage(message, TrimRealmName(author)) then return end
 
-    if self.db.profile.triggers[L["MyChatAlert Global Keywords"]] then
-        for _, word in pairs(self.db.profile.triggers[L["MyChatAlert Global Keywords"]]) do -- check global keywords after matching the channel to ensure channel is added
-            local match = true
+    local match = nil
 
-            if word:find("[-+]") then -- advanced pattern matching
-                if not word:sub(1, 1):find("[-+]") then
-                    -- the word contains -+ operators, but doesn't start with one
-                    -- something along the form of lf+tank-brs
-                    local i, _ = word:find("[-+]")
-                    if not message:lower():find(word:sub(1, i - 1)) then match = false end
-                end
-
-                if match then -- no need to check if we have already determined not a match via first term
-                    for subword in word:lower():gmatch("[-+]%a+") do -- split by operators
-                        if match then -- no need to check if we have already determined not a match via previous subword
-                            if subword:sub(1, 1) == "+" then -- need to find additional terms
-                                if not message:lower():find(subword:sub(2, -1)) then match = false end
-                            elseif subword:sub(1, 1) == "-" then -- need to not find these terms
-                                if message:lower():find(subword:sub(2, -1)) then match = false end
-                            else
-                                print("[MCA Panic!] (core:167) Unexpected operator found") -- BUG CATCH error 167 #1
-                            end
-                        end
-                    end
-                end
-
-            elseif not message:lower():find(word:lower()) then match = false end
-
-            if match then
-                self:AddAlert("*" .. word:sub(1, 11), TrimRealmName(author), message, channel:sub(1, 18)) -- :sub() just to help keep display width under control
-                return
-            end
+    if self.db.profile.triggers[L["MyChatAlert Global Keywords"]] then -- need to check global keywords
+        match = MessageHasTrigger(message, L["MyChatAlert Global Keywords"])
+        if match then
+            self:AddAlert("*" .. match:sub(1, 11), TrimRealmName(author), message, channel:sub(1, 18)) -- :sub() just to help keep display width under control
+            return
         end
     end
 
-    -- don't need to check existence here because it's already been checked
-    -- named channels with own events have their table created when event is registered
-    -- general channels with CHAT_MSG_CHANNEL get checked before entering the function
-    for _, word in pairs(self.db.profile.triggers[channel]) do -- find the non-global keywords
-        local match = true
-
-        if word:find("[-+]") then -- advanced pattern matching
-            if not word:sub(1, 1):find("[-+]") then
-                -- the word contains -+ operators, but doesn't start with one
-                -- something along the form of lf+tank-brs
-                local i, _ = word:find("[-+]")
-                if not message:lower():find(word:sub(1, i - 1)) then match = false end
-            end
-
-            if match then -- no need to check if we have already determined not a match via first term
-                for subword in word:lower():gmatch("[-+]%a+") do -- split by operators
-                    if match then -- no need to check if we have already determined not a match via previous subword
-                        if subword:sub(1, 1) == "+" then -- need to find additional terms
-                            if not message:lower():find(subword:sub(2, -1)) then match = false end
-                        elseif subword:sub(1, 1) == "-" then -- need to not find these terms
-                            if message:lower():find(subword:sub(2, -1)) then match = false end
-                        else
-                            print("[MCA Panic!] (core:167) Unexpected operator found") -- BUG CATCH error 167 #2
-                        end
-                    end
-                end
-            end
-
-        elseif not message:lower():find(word:lower()) then match = false end
-
-        if match then
-            self:AddAlert(word:sub(1, 12), TrimRealmName(author), message, channel:sub(1, 18)) -- :sub() just to help keep display width under control
-            return
-        end
+    -- now check channel keywords
+    match = MessageHasTrigger(message, channel)
+    if match then
+        self:AddAlert(match:sub(1, 12), TrimRealmName(author), message, channel:sub(1, 18)) -- :sub() just to help keep display width under control
     end
 end
 
@@ -449,6 +394,33 @@ function rgbToHex(rgb) -- color form converter [https://gist.github.com/marceloC
     end
 
     return hexadecimal
+end
+
+function MessageHasTrigger(message, channel)
+    -- don't need to check existence here because it's already been checked
+    -- named channels with own events have their table created when event is registered
+    -- general channels with CHAT_MSG_CHANNEL get checked before entering the function
+    for _, word in pairs(MyChatAlert.db.profile.triggers[channel]) do -- find the non-global keywords
+        if word:find("[-+]") then -- advanced pattern matching
+            if not word:sub(1, 1):find("[-+]") then
+                -- the word contains -+ operators, but doesn't start with one
+                -- something along the form of lf+tank-brs
+                local i, _ = word:find("[-+]") -- find first operator to split first term off
+                if not message:lower():find(word:sub(1, i - 1)) then return nil end
+            end
+
+            for subword in word:lower():gmatch("[-+]%a+") do -- split by operators
+                if subword:sub(1, 1) == "+" then -- need to find additional terms
+                    if not message:lower():find(subword:sub(2, -1)) then return nil end
+                elseif subword:sub(1, 1) == "-" then -- need to not find these terms
+                    if message:lower():find(subword:sub(2, -1)) then return nil end
+                end
+            end
+
+        elseif not message:lower():find(word:lower()) then return nil end
+
+        return word
+    end
 end
 
 -------------------------------------------------------------
