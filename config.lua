@@ -1,5 +1,8 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("MyChatAlert", false)
 
+-- localize global functions
+local format, tonumber, pairs, GetChannelName, tinsert, tremove, next = string.format, tonumber, pairs, GetChannelName, table.insert, table.remove, next
+
 MyChatAlert.defaults = {
     profile = {
         enabled = true,

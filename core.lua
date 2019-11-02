@@ -3,6 +3,13 @@ MyChatAlert = LibStub("AceAddon-3.0"):NewAddon("MyChatAlert", "AceConsole-3.0", 
 local AceGUI = LibStub("AceGUI-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("MyChatAlert")
 
+-- declare local functions
+local TrimRealmName, interp, rgbToHex, MessageHasTrigger
+
+-- localize global functions
+local format, pairs, tinsert, tremove, sub, find, time, gsub, floor, fmod, lower = string.format, pairs, table.insert, table.remove, string.sub, string.find, time, string.gsub, math.floor, math.fmod, string.lower
+local IsInInstance, UnitName, PlaySound = IsInInstance, UnitName, PlaySound
+
 -------------------------------------------------------------
 ----------------------- ACE FUNCTIONS -----------------------
 -------------------------------------------------------------
@@ -355,7 +362,7 @@ end
 -------------------------- HELPERS --------------------------
 -------------------------------------------------------------
 
-function TrimRealmName(author)
+TrimRealmName = function(author)
     local name = author
     local realmDelim = name:find("-") -- nil if not found, otherwise tells where the name ends and realm begins
     if realmDelim ~= nil then -- name includes the realm name, we can trim that
@@ -365,22 +372,22 @@ function TrimRealmName(author)
     return name
 end
 
-function interp(s, tab) -- named format replacement [http://lua-users.org/wiki/StringInterpolation]
+interp = function(s, tab) -- named format replacement [http://lua-users.org/wiki/StringInterpolation]
     return (s:gsub('($%b{})', function(w) return tab[w:sub(3, -2)] or w end))
 end
 
-function rgbToHex(rgb) -- color form converter [https://gist.github.com/marceloCodget/3862929]
+rgbToHex = function(rgb) -- color form converter [https://gist.github.com/marceloCodget/3862929]
     -- local hexadecimal = '0X'
     local hexadecimal = '|cFF' -- prefix for wow coloring escape is |c, FF is the alpha portion
 
     for key, value in pairs(rgb) do
         local hex = ''
-        value = math.floor(value * 255) -- uses rgb on a scale of 0-1, scale it up for this conversion
+        value = floor(value * 255) -- uses rgb on a scale of 0-1, scale it up for this conversion
 
         while(value > 0)do
-            local index = math.fmod(value, 16) + 1
-            value = math.floor(value / 16)
-            hex = string.sub('0123456789ABCDEF', index, index) .. hex
+            local index = fmod(value, 16) + 1
+            value = floor(value / 16)
+            hex = sub('0123456789ABCDEF', index, index) .. hex
         end
 
         if(string.len(hex) == 0)then
@@ -396,7 +403,7 @@ function rgbToHex(rgb) -- color form converter [https://gist.github.com/marceloC
     return hexadecimal
 end
 
-function MessageHasTrigger(message, channel)
+MessageHasTrigger = function(message, channel)
     -- don't need to check existence here because it's already been checked
     -- named channels with own events have their table created when event is registered
     -- general channels with CHAT_MSG_CHANNEL get checked before entering the function
