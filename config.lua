@@ -17,6 +17,7 @@ MyChatAlert.defaults = {
         keywordColor = {r = 1, g = 1, b = 0}, -- defaults to yellow #FFFFFF00
         authorColor = {r = 1, g = 1, b = 0}, -- defaults to yellow #FFFFFF00
         messageColor = {r = 1, g = 1, b = 0}, -- defaults to yellow #FFFFFF00
+        printClassColor = false,
         triggers = {},
         filterWords = {},
         ignoredAuthors = {},
@@ -222,7 +223,15 @@ MyChatAlert.options = {
                         MyChatAlert.db.profile.messageColor = {r = 1, g = 1, b = 0}
                     end,
                     disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.printOn end,
-                }
+                },
+                printClassColor = {
+                    name = L["Class Colors"],
+                    desc = L["Color author names by class"],
+                    type = "toggle", order = 9, width = 0.6,
+                    get = function(info) return MyChatAlert.db.profile.printClassColor end,
+                    set = function(info, val) MyChatAlert.db.profile.printClassColor = val end,
+                    disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.printOn end,
+                },
             },
         },
         channels = {

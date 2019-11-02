@@ -4,11 +4,11 @@ local AceGUI = LibStub("AceGUI-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("MyChatAlert")
 
 -- declare local functions
-local TrimRealmName, interp, rgbToHex, MessageHasTrigger, ColorWord
+local TrimRealmName, interp, rgbToHex, MessageHasTrigger, ColorWord, ClassColorFromGUID
 
 -- localize global functions
 local format, pairs, tinsert, tremove, sub, find, time, gsub, floor, fmod, lower = string.format, pairs, table.insert, table.remove, string.sub, string.find, time, string.gsub, math.floor, math.fmod, string.lower
-local IsInInstance, UnitName, PlaySound = IsInInstance, UnitName, PlaySound
+local IsInInstance, UnitName, PlaySound, GetPlayerInfoByGUID, GetClassColor = IsInInstance, UnitName, PlaySound, GetPlayerInfoByGUID, GetClassColor
 
 -------------------------------------------------------------
 ----------------------- ACE FUNCTIONS -----------------------
@@ -91,59 +91,61 @@ MyChatAlert.eventMap = {
     [L["Yell"]] = "CHAT_MSG_YELL",
 }
 
-function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel)
+function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel, _, _, _, _, _, _, _, authorGUID)
     if self.db.profile.triggers and self.db.profile.triggers[channel] then
-        self:CheckAlert(event, message, author, channel)
+        self:CheckAlert(event, message, author, authorGUID, channel)
     end
 end
 
-function MyChatAlert:CHAT_MSG_GUILD(event, message, author)
-    self:CheckAlert(event, message, author, L["Guild"])
+function MyChatAlert:CHAT_MSG_GUILD(event, message, author, _, _, _, _, _, _, _, _, _, authorGUID)
+    self:CheckAlert(event, message, author, authorGUID, L["Guild"])
 end
 
 function MyChatAlert:CHAT_MSG_LOOT(event, message)
-    -- TODO: test this
-    for _, word in pairs(self.db.profile.triggers[L["MyChatAlert Global Keywords"]]) do
-        if message:lower():find(word:lower()) then
-            self:AddAlert(word, UnitName("player"), "*" .. L["Loot"], message, message)
-            return
-        end
-    end
+    -- TODO: finish this
+    -- for _, word in pairs(self.db.profile.triggers[L["MyChatAlert Global Keywords"]]) do
+    --     if message:lower():find(word:lower()) then
+    --         -- add GUI argument, change * highlight, use new alert checking function
+    --         self:AddAlert(word, UnitName("player"), "*" .. L["Loot"], message, message)
+    --         return
+    --     end
+    -- end
 
-    for _, word in pairs(self.db.profile.triggers[L["Loot"]]) do -- find the word
-        if message:lower():find(word:lower()) then -- Alert message
-            self:AddAlert(word, UnitName("player"), L["Loot"], message, message)
-            return -- matched the message, stop
-        end
-    end
+    -- for _, word in pairs(self.db.profile.triggers[L["Loot"]]) do -- find the word
+    --     if message:lower():find(word:lower()) then -- Alert message
+    --         -- add GUI argument, use new alert checking function
+    --         self:AddAlert(word, UnitName("player"), L["Loot"], message, message)
+    --         return -- matched the message, stop
+    --     end
+    -- end
 end
 
-function MyChatAlert:CHAT_MSG_OFFICER(event, message, author)
-    self:CheckAlert(event, message, author, L["Officer"])
+function MyChatAlert:CHAT_MSG_OFFICER(event, message, author, _, _, _, _, _, _, _, _, _, authorGUID)
+    self:CheckAlert(event, message, author, authorGUID, L["Officer"])
 end
 
-function MyChatAlert:CHAT_MSG_PARTY(event, message, author)
-    self:CheckAlert(event, message, author, L["Party"])
+function MyChatAlert:CHAT_MSG_PARTY(event, message, author, _, _, _, _, _, _, _, _, _, authorGUID)
+    self:CheckAlert(event, message, author, authorGUID, L["Party"])
 end
 
-function MyChatAlert:CHAT_MSG_PARTY_LEADER(event, message, author)
-    self:CheckAlert(event, message, author, L["Party Leader"])
+function MyChatAlert:CHAT_MSG_PARTY_LEADER(event, message, author, _, _, _, _, _, _, _, _, _, authorGUID)
+    self:CheckAlert(event, message, author, authorGUID, L["Party Leader"])
 end
 
-function MyChatAlert:CHAT_MSG_RAID(event, message, author)
-    self:CheckAlert(event, message, author, L["Raid"])
+function MyChatAlert:CHAT_MSG_RAID(event, message, author, _, _, _, _, _, _, _, _, _, authorGUID)
+    self:CheckAlert(event, message, author, authorGUID, L["Raid"])
 end
 
-function MyChatAlert:CHAT_MSG_RAID_LEADER(event, message, author)
-    self:CheckAlert(event, message, author, L["Raid Leader"])
+function MyChatAlert:CHAT_MSG_RAID_LEADER(event, message, author, _, _, _, _, _, _, _, _, _, authorGUID)
+    self:CheckAlert(event, message, author, authorGUID, L["Raid Leader"])
 end
 
-function MyChatAlert:CHAT_MSG_RAID_WARNING(event, message, author)
-    self:CheckAlert(event, message, author, L["Raid Warning"])
+function MyChatAlert:CHAT_MSG_RAID_WARNING(event, message, author, _, _, _, _, _, _, _, _, _, authorGUID)
+    self:CheckAlert(event, message, author, authorGUID, L["Raid Warning"])
 end
 
-function MyChatAlert:CHAT_MSG_SAY(event, message, author)
-    self:CheckAlert(event, message, author, L["Say"])
+function MyChatAlert:CHAT_MSG_SAY(event, message, author, _, _, _, _, _, _, _, _, _, authorGUID)
+    self:CheckAlert(event, message, author, authorGUID, L["Say"])
 end
 
 function MyChatAlert:CHAT_MSG_SYSTEM(event, message, author, _, channel)
@@ -151,11 +153,11 @@ function MyChatAlert:CHAT_MSG_SYSTEM(event, message, author, _, channel)
     -- TODO: finish this
 end
 
-function MyChatAlert:CHAT_MSG_YELL(event, message, author)
-    self:CheckAlert(event, message, author, L["Yell"])
+function MyChatAlert:CHAT_MSG_YELL(event, message, author, _, _, _, _, _, _, _, _, _, authorGUID)
+    self:CheckAlert(event, message, author, authorGUID, L["Yell"])
 end
 
-function MyChatAlert:CheckAlert(event, message, author, channel)
+function MyChatAlert:CheckAlert(event, message, author, authorGUID, channel)
     if self:AuthorIgnored(TrimRealmName(author)) then return end
     if self:MessageIgnored(message, channel) then return end
     if self:IsDuplicateMessage(message, TrimRealmName(author)) then return end
@@ -165,7 +167,7 @@ function MyChatAlert:CheckAlert(event, message, author, channel)
     if self.db.profile.triggers[L["MyChatAlert Global Keywords"]] then -- need to check global keywords
         match, coloredMsg = MessageHasTrigger(message, L["MyChatAlert Global Keywords"])
         if match then
-            self:AddAlert("*" .. match:sub(1, 11), TrimRealmName(author), channel:sub(1, 18), message, coloredMsg) -- :sub() just to help keep display width under control
+            self:AddAlert("*" .. match:sub(1, 11), TrimRealmName(author), authorGUID, channel:sub(1, 18), message, coloredMsg) -- :sub() just to help keep display width under control
             return
         end
     end
@@ -173,7 +175,7 @@ function MyChatAlert:CheckAlert(event, message, author, channel)
     -- now check channel keywords
     match, coloredMsg = MessageHasTrigger(message, channel)
     if match then
-        self:AddAlert(match:sub(1, 11), TrimRealmName(author), channel:sub(1, 18), message, coloredMsg) -- :sub() just to help keep display width under control
+        self:AddAlert(match:sub(1, 11), TrimRealmName(author), authorGUID, channel:sub(1, 18), message, coloredMsg) -- :sub() just to help keep display width under control
     end
 end
 
@@ -301,8 +303,9 @@ function MyChatAlert:ToggleAlertFrame()
     end
 end
 
-function MyChatAlert:AddAlert(word, author, channel, msg, coloredMsg) -- makes sure no more than 15 alerts are stored
+function MyChatAlert:AddAlert(word, author, authorGUID, channel, msg, coloredMsg) -- makes sure no more than 15 alerts are stored
     if #self.alertFrame.alerts == self.alertFrame.MAX_ALERTS_TO_KEEP then tremove(self.alertFrame.alerts, 1) end -- remove first/oldest alert
+
     tinsert(self.alertFrame.alerts, {word = word, author = author, msg = msg, channel = channel, time = time()}) -- insert alert
 
     if self.alertFrame.frame:IsVisible() then -- reload frame
@@ -319,6 +322,10 @@ function MyChatAlert:AddAlert(word, author, channel, msg, coloredMsg) -- makes s
         local keywordColor = rgbToHex({self.db.profile.keywordColor.r, self.db.profile.keywordColor.g, self.db.profile.keywordColor.b})
         local authorColor = rgbToHex({self.db.profile.authorColor.r, self.db.profile.authorColor.g, self.db.profile.authorColor.b})
         local messageColor = rgbToHex({self.db.profile.messageColor.r, self.db.profile.messageColor.g, self.db.profile.messageColor.b})
+
+        if self.db.profile.printClassColor then -- overwrite author color with class color
+            authorColor = ClassColorFromGUID(authorGUID)
+        end
 
         local replacement = {
             keyword = keywordColor .. word .. baseColor,
@@ -458,6 +465,13 @@ ColorWord = function(wordStart, wordEnd, message)
     return message:sub(1, wordStart - 1) ..
         keywordColor .. message:sub(wordStart, wordEnd) .. messageColor ..
         message:sub(wordEnd + 1, -1)
+end
+
+ClassColorFromGUID = function(guid)
+    local _, class = GetPlayerInfoByGUID(guid) -- using englishClass for following api call
+    local _, _, _, classColor = GetClassColor(class) -- api returns rPerc, gPerc, bPerc, argbHex
+
+    return "|c" .. classColor
 end
 
 -------------------------------------------------------------
