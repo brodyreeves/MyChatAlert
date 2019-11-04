@@ -331,7 +331,7 @@ MyChatAlert.options = {
                     type = "execute", order = 4, width = 0.8,
                     func = function()
                         if wordToDelete then
-                            MyChatAlert.db.profile.triggers[addedChannels[selectedChannel]][wordToDelete] = nil
+                            tremove(MyChatAlert.db.profile.triggers[addedChannels[selectedChannel]], wordToDelete)
                             wordToDelete = nil
                         end
                     end,
@@ -380,7 +380,7 @@ MyChatAlert.options = {
                     type = "execute", order = 4, width = 0.8,
                     func = function()
                         if filterToDelete then
-                            MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]][filterToDelete] = nil
+                            tremove(MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]], filterToDelete)
                             filterToDelete = nil
                         end
                     end,
@@ -414,7 +414,7 @@ MyChatAlert.options = {
                     type = "execute", order = 3, width = 0.8,
                     func = function()
                         if authorToDelete then
-                            MyChatAlert.db.profile.ignoredAuthors[authorToDelete] = nil
+                            table.remove(MyChatAlert.db.profile.ignoredAuthors, authorToDelete)
                             authorToDelete = nil
                         end
                     end,

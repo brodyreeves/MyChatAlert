@@ -2,12 +2,33 @@
 
 ## 2.4.6
 
-- New Feature: Loot channel is now functional and can be added for alerts
+#### New Features
+
+- Loot channel is now functional and can be added for alerts
   - This works just as the prexisting channels and alerts do, with one difference: the loot channel will not check against keywords in the `Global Keywords` channel
   - I did this because I don't expect there to be overlap between what the global keywords are watching for, and what keywords will be used for loot alerts; if this is something that people want to be changed, it can be
-- New Feature: System channel is now functional and can be added for alerts
+- System channel is now functional and can be added for alerts
   - Same notes as the loot channel
-- Code refactoring
+
+#### Side note
+
+- Did a lot of refactoring and I'm not sure if I broke existing saved variable setups. I don't believe I did as throughout my testing I didn't have any issues that required cleaning them up, but if I did then the fix is as simple as opening up the saved variable file (`World of Warcraft\_classic_\WTF\Account\ACCOUNT\Server\Character\SavedVariables\MyChatAlert.lua`) and altering the entries
+  - I mostly refactored the filters/ignored authors/keywords so they should be the only possible sources of issues
+  - If you notice something not behaving correctly (not deleting or deleting the incorrect entry) then check to make sure the above areas contain lists that look like `"text", -- [1] \\ "text", -- [2]`, where `\\` represents a newline
+  - Weird behaviour is probably stemming from a case where one of these tables is sparse (no `[1]` or `[2]` entries, but a `[3]` entry), so changing the numbers to get it back in `[1]...[2]...[3]` form should fix it.
+  - Alternatively, if you're not concerned with saving your stuff, you can just delete the file
+  - Afterwards, also be sure to delete the second file in that same directory named `MyChatAlert.lua.bak`
+  - Apologies if you have to deal any issues regarding saved variables, it's my hope that there aren't any
+
+#### Example of an ignoredAuthor subtable in the saved variables
+
+```lua
+ignoredAuthors = {
+  "name1", -- [1]
+  "name2", -- [2]
+  "name3", -- [3]
+}
+```
 
 ## 2.4.5
 
