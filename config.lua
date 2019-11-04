@@ -26,18 +26,18 @@ MyChatAlert.defaults = {
 }
 
 MyChatAlert.outputFrames = {
-    [1] = {readable = L["Default Chat Frame"], frame = "DEFAULT_CHAT_FRAME"},
-    [2] = {readable = L["Error Frame"], frame = "UIErrorsFrame"},
-    [3] = {readable = format(L["Chat Frame %i"], 1), frame = "ChatFrame1"},
-    [4] = {readable = format(L["Chat Frame %i"], 2), frame = "ChatFrame2"},
-    [5] = {readable = format(L["Chat Frame %i"], 3), frame = "ChatFrame3"},
-    [6] = {readable = format(L["Chat Frame %i"], 4), frame = "ChatFrame4"},
-    [7] = {readable = format(L["Chat Frame %i"], 5), frame = "ChatFrame5"},
-    [8] = {readable = format(L["Chat Frame %i"], 6), frame = "ChatFrame6"},
-    [9] = {readable = format(L["Chat Frame %i"], 7), frame = "ChatFrame7"},
-    [10] = {readable = format(L["Chat Frame %i"], 8), frame = "ChatFrame8"},
-    [11] = {readable = format(L["Chat Frame %i"], 9), frame = "ChatFrame9"},
-    [12] = {readable = format(L["Chat Frame %i"], 10), frame = "ChatFrame10"},
+    [1] = {readable = L["Default Chat Frame"], frame = DEFAULT_CHAT_FRAME},
+    [2] = {readable = L["Error Frame"], frame = UIErrorsFrame},
+    [3] = {readable = format(L["Chat Frame %i"], 1), frame = ChatFrame1},
+    [4] = {readable = format(L["Chat Frame %i"], 2), frame = ChatFrame2},
+    [5] = {readable = format(L["Chat Frame %i"], 3), frame = ChatFrame3},
+    [6] = {readable = format(L["Chat Frame %i"], 4), frame = ChatFrame4},
+    [7] = {readable = format(L["Chat Frame %i"], 5), frame = ChatFrame5},
+    [8] = {readable = format(L["Chat Frame %i"], 6), frame = ChatFrame6},
+    [9] = {readable = format(L["Chat Frame %i"], 7), frame = ChatFrame7},
+    [10] = {readable = format(L["Chat Frame %i"], 8), frame = ChatFrame8},
+    [11] = {readable = format(L["Chat Frame %i"], 9), frame = ChatFrame9},
+    [12] = {readable = format(L["Chat Frame %i"], 10), frame = ChatFrame10},
 }
 
 local channelToDelete, selectedChannel, wordToDelete, filterToDelete, authorToDelete = nil, nil, nil, nil, nil

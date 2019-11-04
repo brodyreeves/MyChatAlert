@@ -43,8 +43,10 @@ function MyChatAlert:OnInitialize()
 end
 
 function MyChatAlert:OnEnable()
+    if not self.db.profile.enabled then return false, "disabled via setting" end
+
     local _, type = IsInInstance()
-    if not self.db.profile.enabled or (self.db.profile.disableInInstance and type and type ~= "none") then return end
+    if self.db.profile.disableInInstance and type and type ~= "none" then return false, "disabled in instance" end
 
     local chat_msg_chan = false
 
@@ -66,11 +68,15 @@ function MyChatAlert:OnEnable()
 end
 
 function MyChatAlert:OnDisable()
+    if self.db.profile.enabled then return false, "enabled via settings" end
+
     local _, type = IsInInstance()
-    if self.db.profile.enabled and ((type and type == "none") or not self.db.profile.disableInInstance) then return end
+    if not self.db.profile.disableInInstance or type and type == "none" then return false, "not disabled in instance" end
 
     self:UnregisterEvent("CHAT_MSG_CHANNEL")
     for _, event in pairs(self.eventMap) do self:UnregisterEvent(event) end
+
+    -- don't unregister ZONE_CHANGED** events, need them to toggle back on after an instance
 end
 
 -------------------------------------------------------------
@@ -155,28 +161,6 @@ end
 
 function MyChatAlert:CHAT_MSG_YELL(event, message, author, _, _, _, _, _, _, _, _, _, authorGUID)
     self:CheckAlert(event, message, author, authorGUID, L["Yell"])
-end
-
-function MyChatAlert:CheckAlert(event, message, author, authorGUID, channel)
-    if self:AuthorIgnored(TrimRealmName(author)) then return end
-    if self:MessageIgnored(message, channel) then return end
-    if self:IsDuplicateMessage(message, TrimRealmName(author)) then return end
-
-    local match, coloredMsg = nil, nil
-
-    if self.db.profile.triggers[L["MyChatAlert Global Keywords"]] then -- need to check global keywords
-        match, coloredMsg = MessageHasTrigger(message, L["MyChatAlert Global Keywords"])
-        if match then
-            self:AddAlert("*" .. match:sub(1, 11), TrimRealmName(author), authorGUID, channel:sub(1, 18), message, coloredMsg) -- :sub() just to help keep display width under control
-            return
-        end
-    end
-
-    -- now check channel keywords
-    match, coloredMsg = MessageHasTrigger(message, channel)
-    if match then
-        self:AddAlert(match:sub(1, 11), TrimRealmName(author), authorGUID, channel:sub(1, 18), message, coloredMsg) -- :sub() just to help keep display width under control
-    end
 end
 
 function MyChatAlert:ZONE_CHANGED()
@@ -303,6 +287,33 @@ function MyChatAlert:ToggleAlertFrame()
     end
 end
 
+-------------------------------------------------------------
+----------------------- ALERT HANDLING ----------------------
+-------------------------------------------------------------
+
+function MyChatAlert:CheckAlert(event, message, author, authorGUID, channel)
+    if self:AuthorIgnored(TrimRealmName(author)) then return false, "author ignored" end
+    if self:MessageIgnored(message, channel) then return false, "message ignored" end
+    if self:IsDuplicateMessage(message, TrimRealmName(author)) then return false, "message is duplicate" end
+
+    local match, coloredMsg = nil, nil
+
+    if self.db.profile.triggers[L["MyChatAlert Global Keywords"]] then -- need to check global keywords
+        match, coloredMsg = MessageHasTrigger(message, L["MyChatAlert Global Keywords"])
+        if match then
+            self:AddAlert("*" .. match:sub(1, 11), TrimRealmName(author), authorGUID, channel:sub(1, 18), message, coloredMsg) -- :sub() just to help keep display width under control
+            return true
+        end
+    end
+
+    -- now check channel keywords
+    match, coloredMsg = MessageHasTrigger(message, channel)
+    if match then
+        self:AddAlert(match:sub(1, 12), TrimRealmName(author), authorGUID, channel:sub(1, 18), message, coloredMsg) -- :sub() just to help keep display width under control
+        return true
+    end
+end
+
 function MyChatAlert:AddAlert(word, author, authorGUID, channel, msg, coloredMsg) -- makes sure no more than 15 alerts are stored
     if #self.alertFrame.alerts == self.alertFrame.MAX_ALERTS_TO_KEEP then tremove(self.alertFrame.alerts, 1) end -- remove first/oldest alert
 
@@ -316,8 +327,8 @@ function MyChatAlert:AddAlert(word, author, authorGUID, channel, msg, coloredMsg
     if self.db.profile.soundOn then PlaySound(self.db.profile.sound) end
 
     if self.db.profile.printOn then
-        local dest = self.outputFrames[self.db.profile.printOutput].frame
-
+        -- separate and combine these, noticed inconsistent colors if changed to something like:
+        -- rgbToHex(self.db.profile.baseColor)
         local baseColor = rgbToHex({self.db.profile.baseColor.r, self.db.profile.baseColor.g, self.db.profile.baseColor.b})
         local keywordColor = rgbToHex({self.db.profile.keywordColor.r, self.db.profile.keywordColor.g, self.db.profile.keywordColor.b})
         local authorColor = rgbToHex({self.db.profile.authorColor.r, self.db.profile.authorColor.g, self.db.profile.authorColor.b})
@@ -335,33 +346,8 @@ function MyChatAlert:AddAlert(word, author, authorGUID, channel, msg, coloredMsg
 
         local message = baseColor .. interp(self.db.profile.printedMessage or L["Printed alert"], replacement)
 
-        if dest == "DEFAULT_CHAT_FRAME" then
-            DEFAULT_CHAT_FRAME:AddMessage(message, 1.0, 1.0, 1.0)
-        elseif dest == "UIErrorsFrame" then
-            UIErrorsFrame:AddMessage(message, 1.0, 1.0, 1.0)
-        elseif dest == "ChatFrame1" then
-            ChatFrame1:AddMessage(message, 1.0, 1.0, 1.0)
-        elseif dest == "ChatFrame2" then
-            ChatFrame2:AddMessage(message, 1.0, 1.0, 1.0)
-        elseif dest == "ChatFrame3" then
-            ChatFrame3:AddMessage(message, 1.0, 1.0, 1.0)
-        elseif dest == "ChatFrame4" then
-            ChatFrame4:AddMessage(message, 1.0, 1.0, 1.0)
-        elseif dest == "ChatFrame5" then
-            ChatFrame5:AddMessage(message, 1.0, 1.0, 1.0)
-        elseif dest == "ChatFrame6" then
-            ChatFrame6:AddMessage(message, 1.0, 1.0, 1.0)
-        elseif dest == "ChatFrame7" then
-            ChatFrame7:AddMessage(message, 1.0, 1.0, 1.0)
-        elseif dest == "ChatFrame8" then
-            ChatFrame8:AddMessage(message, 1.0, 1.0, 1.0)
-        elseif dest == "ChatFrame9" then
-            ChatFrame9:AddMessage(message, 1.0, 1.0, 1.0)
-        elseif dest == "ChatFrame10" then
-            ChatFrame10:AddMessage(message, 1.0, 1.0, 1.0)
-        else
-            print("[MCA Panic!] (core:332) Unrecognized printOutput selection") -- BUG CATCH error 332
-        end
+        local printFrame = self.outputFrames[self.db.profile.printOutput].frame
+        printFrame:AddMessage(message, 1.0, 1.0, 1.0)
     end
 end
 
@@ -416,7 +402,7 @@ MessageHasTrigger = function(message, channel)
     -- general channels with CHAT_MSG_CHANNEL get checked before entering the function
     local msg = message
 
-    for _, word in pairs(MyChatAlert.db.profile.triggers[channel]) do -- find the non-global keywords
+    for _, word in pairs(MyChatAlert.db.profile.triggers[channel]) do
         if word:find("[-+]") then -- advanced pattern matching
             if not word:sub(1, 1):find("[-+]") then
                 -- the word contains -+ operators, but doesn't start with one
@@ -424,7 +410,7 @@ MessageHasTrigger = function(message, channel)
                 local firstOp, _ = word:find("[-+]") -- find first operator to split first term off
                 local wordStart, wordEnd = message:lower():find(word:lower():sub(1, firstOp - 1)) -- try to find first term in message
 
-                if not wordStart then return nil -- didnt find it
+                if not wordStart then return false, "couldn't find keyword first term" -- didnt find it
                 else -- surround keyword with color flags and continue matching terms
                     msg = ColorWord(wordStart, wordEnd, msg)
                 end
@@ -435,9 +421,9 @@ MessageHasTrigger = function(message, channel)
                 local wordStart, wordEnd = message:lower():find(subword:sub(2, -1)) -- find term in message
 
                 if subword:sub(1, 1) == "+" then -- want term to be in the message
-                    if not wordStart then return nil end
+                    if not wordStart then return false, "couldn't find keyword additional term" end
                 else -- '-' operator, don't want term to be in message
-                    if wordStart then return nil end
+                    if wordStart then return false, "found keyword exclusion term" end
                 end
 
                 -- if term was found then color it
@@ -447,7 +433,7 @@ MessageHasTrigger = function(message, channel)
         else -- simple word matching
             local wordStart, wordEnd = message:lower():find(word:lower()) -- find word in message
 
-            if not wordStart then return nil end -- word wasn't found
+            if not wordStart then return false, "couldn't find keyword" end -- word wasn't found
 
             msg = ColorWord(wordStart, wordEnd, msg)
         end
@@ -459,6 +445,7 @@ end
 ColorWord = function(wordStart, wordEnd, message)
     -- split message apart like: {Message before word}, {Word}, {Message after word}
     -- and insert color flags around {Word} portion
+    -- same coloring behavior described in MyChatAlert:AddAlert()
     local keywordColor = rgbToHex({MyChatAlert.db.profile.keywordColor.r, MyChatAlert.db.profile.keywordColor.g, MyChatAlert.db.profile.keywordColor.b})
     local messageColor = rgbToHex({MyChatAlert.db.profile.messageColor.r, MyChatAlert.db.profile.messageColor.g, MyChatAlert.db.profile.messageColor.b})
 
@@ -469,7 +456,7 @@ end
 
 ClassColorFromGUID = function(guid)
     local _, class = GetPlayerInfoByGUID(guid) -- using englishClass for following api call
-    local _, _, _, classColor = GetClassColor(class) -- api returns rPerc, gPerc, bPerc, argbHex
+    local _, _, _, classColor = GetClassColor(class) -- api returns r%, g%, b%, argbHex
 
     return "|c" .. classColor
 end
@@ -479,10 +466,10 @@ end
 -------------------------------------------------------------
 
 function MyChatAlert:AuthorIgnored(author)
-    if author == UnitName("player") then return true end -- don't do anything if it's your own message
+    if author == UnitName("player") then return true, "author is player" end -- don't do anything if it's your own message
 
     for _, name in pairs(self.db.profile.ignoredAuthors) do
-        if author == name then return true end
+        if author == name then return true, "author is ignored" end
     end
 
     --[[ Disabled due to not working, no demand/no plans to fix it 10/28/19
