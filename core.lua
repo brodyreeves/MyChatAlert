@@ -85,7 +85,7 @@ end
 
 MyChatAlert.eventMap = {
     [L["Guild"]] = "CHAT_MSG_GUILD",
-    -- [L["Loot"]] = "CHAT_MSG_LOOT",
+    [L["Loot"]] = "CHAT_MSG_LOOT",
     [L["Officer"]] = "CHAT_MSG_OFFICER",
     [L["Party"]] = "CHAT_MSG_PARTY",
     [L["Party Leader"]] = "CHAT_MSG_PARTY_LEADER",
@@ -108,22 +108,14 @@ function MyChatAlert:CHAT_MSG_GUILD(event, message, author, _, _, _, _, _, _, _,
 end
 
 function MyChatAlert:CHAT_MSG_LOOT(event, message)
-    -- TODO: finish this
-    -- for _, word in pairs(self.db.profile.triggers[L["MyChatAlert Global Keywords"]]) do
-    --     if message:lower():find(word:lower()) then
-    --         -- add GUI argument, change * highlight, use new alert checking function
-    --         self:AddAlert(word, UnitName("player"), "*" .. L["Loot"], message, message)
-    --         return
-    --     end
-    -- end
+    -- don't want to use global keywords when checking loot messages, no overlap; if people ask then put it in ??
+    -- check channel keywords
+    local match, coloredMsg = MessageHasTrigger(message, L["Loot"])
 
-    -- for _, word in pairs(self.db.profile.triggers[L["Loot"]]) do -- find the word
-    --     if message:lower():find(word:lower()) then -- Alert message
-    --         -- add GUI argument, use new alert checking function
-    --         self:AddAlert(word, UnitName("player"), L["Loot"], message, message)
-    --         return -- matched the message, stop
-    --     end
-    -- end
+    if match then
+        self:AddAlert(match:sub(1, 12), UnitName("player"), UnitGUID("player"), L["Loot"], message, coloredMsg) -- :sub() just to help keep display width under control
+        return true
+    end
 end
 
 function MyChatAlert:CHAT_MSG_OFFICER(event, message, author, _, _, _, _, _, _, _, _, _, authorGUID)

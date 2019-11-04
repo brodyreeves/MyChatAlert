@@ -259,7 +259,7 @@ MyChatAlert.options = {
 
                         -- standard, non-numbered channels
                         availableChannels[#availableChannels + 1] = L["Guild"]
-                        --availableChannels[#availableChannels + 1] = L["Loot"]
+                        availableChannels[#availableChannels + 1] = L["Loot"]
                         availableChannels[#availableChannels + 1] = L["Officer"]
                         availableChannels[#availableChannels + 1] = L["Party"]
                         availableChannels[#availableChannels + 1] = L["Party Leader"]

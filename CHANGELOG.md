@@ -1,5 +1,12 @@
 # MyChatAlert
 
+## 2.4.6
+
+- New Feature: Loot channel is now functional and can be added for alerts
+  - This works just as the prexisting channels and alerts do, with one difference: the loot channel will not check against keywords in the `Global Keywords` channel
+  - I did this because I don't expect there to be overlap between what the global keywords are watching for, and what keywords will be used for loot alerts; if this is something that people want to be changed, it can be
+- Code refactoring
+
 ## 2.4.5
 
 - New Feature: Option for class coloring on authors
