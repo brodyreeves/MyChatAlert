@@ -93,7 +93,7 @@ MyChatAlert.eventMap = {
     [L["Raid Leader"]] = "CHAT_MSG_RAID_LEADER",
     [L["Raid Warning"]] = "CHAT_MSG_RAID_WARNING",
     [L["Say"]] = "CHAT_MSG_SAY",
-    -- [L["System"]] = "CHAT_MSG_SYSTEM",
+    [L["System"]] = "CHAT_MSG_SYSTEM",
     [L["Yell"]] = "CHAT_MSG_YELL",
 }
 
@@ -114,7 +114,6 @@ function MyChatAlert:CHAT_MSG_LOOT(event, message)
 
     if match then
         self:AddAlert(match:sub(1, 12), UnitName("player"), UnitGUID("player"), L["Loot"], message, coloredMsg) -- :sub() just to help keep display width under control
-        return true
     end
 end
 
@@ -146,9 +145,14 @@ function MyChatAlert:CHAT_MSG_SAY(event, message, author, _, _, _, _, _, _, _, _
     self:CheckAlert(event, message, author, authorGUID, L["Say"])
 end
 
-function MyChatAlert:CHAT_MSG_SYSTEM(event, message, author, _, channel)
-    -- uses global strings
-    -- TODO: finish this
+function MyChatAlert:CHAT_MSG_SYSTEM(event, message)
+    -- uses global strings, see [https://raw.githubusercontent.com/tekkub/wow-globalstrings/master/GlobalStrings/enUS.lua]
+    -- keywords still work, don't need to match against the strings, can be browsed to help set alerts though
+    local match, coloredMsg = MessageHasTrigger(message, L["System"])
+
+    if match then
+        self:AddAlert(match:sub(1, 12), UnitName("player"), UnitGUID("player"), L["System"], message, coloredMsg) -- :sub() just to help keep display width under control
+    end
 end
 
 function MyChatAlert:CHAT_MSG_YELL(event, message, author, _, _, _, _, _, _, _, _, _, authorGUID)

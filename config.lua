@@ -267,7 +267,7 @@ MyChatAlert.options = {
                         availableChannels[#availableChannels + 1] = L["Raid Leader"]
                         availableChannels[#availableChannels + 1] = L["Raid Warning"]
                         availableChannels[#availableChannels + 1] = L["Say"]
-                        --availableChannels[#availableChannels + 1] = L["System"]
+                        availableChannels[#availableChannels + 1] = L["System"]
                         availableChannels[#availableChannels + 1] = L["Yell"]
 
                         return availableChannels
