@@ -1,7 +1,10 @@
 local L = LibStub("AceLocale-3.0"):GetLocale("MyChatAlert", false)
 
 -- localize global functions
-local format, tonumber, pairs, GetChannelName, tinsert, tremove, next = string.format, tonumber, pairs, GetChannelName, table.insert, table.remove, next
+local format, tonumber, pairs, GetChannelName, next = string.format, tonumber, pairs, GetChannelName, next
+
+-- local functions
+local UpdateAvailableChannels, UpdateAddedChannels, GetAvailableOutputs
 
 MyChatAlert.defaults = {
     profile = {
@@ -43,9 +46,6 @@ MyChatAlert.outputFrames = {
 local channelToDelete, selectedChannel, wordToDelete, filterToDelete, authorToDelete = nil, nil, nil, nil, nil
 local availableChannels = {} -- cache available channels for quick-add
 local addedChannels = {} -- cache added channels for removal
-local addedWords = {} -- cache added words for removal
-local addedFilters = {} -- cache added filters for removal
-local addedAuthors = {} -- cache added authors for removal
 
 MyChatAlert.options = {
     name = L["MyChatAlert"],
@@ -137,15 +137,7 @@ MyChatAlert.options = {
                     name = L["Destination"],
                     desc = L["Where to output printed alerts"],
                     type = "select", order = 2, width = 1,
-                    values = function()
-                        local availableOutputs = {}
-
-                        for k, option in pairs(MyChatAlert.outputFrames) do
-                            availableOutputs[k] = option.readable
-                        end
-
-                        return availableOutputs
-                    end,
+                    values = function() return GetAvailableOutputs() end,
                     get = function(info) return MyChatAlert.db.profile.printOutput end,
                     set = function(info, val) MyChatAlert.db.profile.printOutput = val end,
                     disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.printOn end,
@@ -242,40 +234,12 @@ MyChatAlert.options = {
                     name = L["Select New Channel"],
                     desc = L["Select a channel to watch"],
                     type = "select", order = 1, width = 1,
-                    values = function()
-                        availableChannels = {} -- flush for recreation
-
-                        availableChannels[#availableChannels + 1] = L["MyChatAlert Global Keywords"]
-
-                        for i = 1, NUM_CHAT_WINDOWS do
-                            local num, name = GetChannelName(i)
-                            if num > 0 then -- number channel, e.g. 2. Trade - City
-                                local channel = num .. L["Number delimiter"] .. " " .. name
-                                availableChannels[#availableChannels + 1] = channel
-                            else
-                                availableChannels[#availableChannels + 1] = name
-                            end
-                        end
-
-                        -- standard, non-numbered channels
-                        availableChannels[#availableChannels + 1] = L["Guild"]
-                        availableChannels[#availableChannels + 1] = L["Loot"]
-                        availableChannels[#availableChannels + 1] = L["Officer"]
-                        availableChannels[#availableChannels + 1] = L["Party"]
-                        availableChannels[#availableChannels + 1] = L["Party Leader"]
-                        availableChannels[#availableChannels + 1] = L["Raid"]
-                        availableChannels[#availableChannels + 1] = L["Raid Leader"]
-                        availableChannels[#availableChannels + 1] = L["Raid Warning"]
-                        availableChannels[#availableChannels + 1] = L["Say"]
-                        availableChannels[#availableChannels + 1] = L["System"]
-                        availableChannels[#availableChannels + 1] = L["Yell"]
-
-                        return availableChannels
-                    end,
+                    values = function() return UpdateAvailableChannels() end,
                     set = function(info, val)
                         if not MyChatAlert.db.profile.triggers[availableChannels[val]] then -- only add if not already added
                             MyChatAlert.db.profile.triggers[availableChannels[val]] = {}
                             MyChatAlert.db.profile.filterWords[availableChannels[val]] = {}
+
                             if MyChatAlert.eventMap[availableChannels[val]] then -- channel is mapped to an event
                                 MyChatAlert:RegisterEvent(MyChatAlert.eventMap[availableChannels[val]])
                             else
@@ -289,11 +253,7 @@ MyChatAlert.options = {
                     name = L["Remove Channel"],
                     desc = L["Select a channel to remove from being watched"],
                     type = "select", order = 2, width = 1,
-                    values = function()
-                        addedChannels = {}
-                        for chan, _ in pairs(MyChatAlert.db.profile.triggers) do addedChannels[#addedChannels + 1] = chan end
-                        return addedChannels
-                    end,
+                    values = function() return UpdateAddedChannels() end,
                     get = function(info) return channelToDelete end,
                     set = function(info, val) channelToDelete = val end,
                     disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.triggers or next(MyChatAlert.db.profile.triggers) == nil end,
@@ -311,7 +271,7 @@ MyChatAlert.options = {
 
                         MyChatAlert.db.profile.triggers[addedChannels[channelToDelete]] = nil
                         MyChatAlert.db.profile.filterWords[addedChannels[channelToDelete]] = nil
-                        tremove(addedChannels, channelToDelete)
+                        addedChannels[channelToDelete] = nil
 
                         if selectedChannel and selectedChannel >= channelToDelete then -- messes up index accessing
                             selectedChannel = nil
@@ -344,11 +304,7 @@ MyChatAlert.options = {
                     name = L["Select Channel"],
                     desc = L["Select a channel to add keywords to"],
                     type = "select", order = 1, width = 1,
-                    values = function()
-                        addedChannels = {}
-                        for chan, _ in pairs(MyChatAlert.db.profile.triggers) do addedChannels[#addedChannels + 1] = chan end
-                        return addedChannels
-                    end,
+                    values = function() return UpdateAddedChannels() end,
                     get = function(info) return selectedChannel end,
                     set = function(info, val) selectedChannel = val end,
                     disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.triggers or next(MyChatAlert.db.profile.triggers) == nil end,
@@ -357,20 +313,14 @@ MyChatAlert.options = {
                     name = L["Add Keyword"],
                     desc = L["Add a keyword to watch for"],
                     type = "input", order = 2, width = 0.5,
-                    set = function(info, val) if val ~= "" then tinsert(MyChatAlert.db.profile.triggers[addedChannels[selectedChannel]], val) end end,
+                    set = function(info, val) if val ~= "" then MyChatAlert.db.profile.triggers[addedChannels[selectedChannel]][#MyChatAlert.db.profile.triggers[addedChannels[selectedChannel]] + 1] = val end end,
                     disabled = function() return not MyChatAlert.db.profile.enabled or not selectedChannel end,
                 },
                 removeKeyword = {
                     name = L["Remove Keyword"],
                     desc = L["Select a keyword to remove from being watched for"],
                     type = "select", order = 3, width = 1, width = 0.6,
-                    values = function()
-                        addedWords = {}
-                        if selectedChannel and MyChatAlert.db.profile.triggers[addedChannels[selectedChannel]] and #MyChatAlert.db.profile.triggers[addedChannels[selectedChannel]] > 0 then
-                            for _, word in pairs(MyChatAlert.db.profile.triggers[addedChannels[selectedChannel]]) do tinsert(addedWords, word) end
-                        end
-                        return addedWords
-                    end,
+                    values = function() return MyChatAlert.db.profile.triggers[addedChannels[selectedChannel]] or {} end,
                     get = function(info) return wordToDelete end,
                     set = function(info, val) wordToDelete = val end,
                     disabled = function() return not MyChatAlert.db.profile.enabled or not selectedChannel or not MyChatAlert.db.profile.triggers[addedChannels[selectedChannel]] or next(MyChatAlert.db.profile.triggers[addedChannels[selectedChannel]]) == nil end,
@@ -381,8 +331,7 @@ MyChatAlert.options = {
                     type = "execute", order = 4, width = 0.8,
                     func = function()
                         if wordToDelete then
-                            tremove(MyChatAlert.db.profile.triggers[addedChannels[selectedChannel]], wordToDelete)
-                            tremove(addedWords, wordToDelete)
+                            MyChatAlert.db.profile.triggers[addedChannels[selectedChannel]][wordToDelete] = nil
                             wordToDelete = nil
                         end
                     end,
@@ -398,11 +347,7 @@ MyChatAlert.options = {
                     name = L["Select Channel"],
                     desc = L["Select a channel to add filters to"],
                     type = "select", order = 1, width = 1,
-                    values = function()
-                        addedChannels = {}
-                        for chan, _ in pairs(MyChatAlert.db.profile.triggers) do addedChannels[#addedChannels + 1] = chan end
-                        return addedChannels
-                    end,
+                    values = function() return UpdateAddedChannels() end,
                     get = function(info) return selectedChannel end,
                     set = function(info, val) selectedChannel = val end,
                     disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.triggers or next(MyChatAlert.db.profile.triggers) == nil end,
@@ -415,7 +360,7 @@ MyChatAlert.options = {
                         if val ~= "" then
                             if not MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]] then
                                 MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]] = {} end
-                            tinsert(MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]], val)
+                            MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]][#MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]] + 1] = val
                         end
                     end,
                     disabled = function() return not MyChatAlert.db.profile.enabled or not selectedChannel end,
@@ -424,13 +369,7 @@ MyChatAlert.options = {
                     name = L["Remove Filter"],
                     desc = L["Select a keyword to remove from being filtered"],
                     type = "select", order = 3, width = 1, width = 0.6,
-                    values = function()
-                        addedFilters = {}
-                        if selectedChannel and MyChatAlert.db.profile.filterWords and MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]] and next(MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]]) ~= nil then
-                            for _, word in pairs(MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]]) do tinsert(addedFilters, word) end
-                        end
-                        return addedFilters
-                    end,
+                    values = function() return MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]] or {} end,
                     get = function(info) return filterToDelete end,
                     set = function(info, val) filterToDelete = val end,
                     disabled = function() return not MyChatAlert.db.profile.enabled or not selectedChannel or not MyChatAlert.db.profile.filterWords or not MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]] or next(MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]]) == nil end,
@@ -441,8 +380,7 @@ MyChatAlert.options = {
                     type = "execute", order = 4, width = 0.8,
                     func = function()
                         if filterToDelete then
-                            tremove(MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]], filterToDelete)
-                            tremove(addedFilters, filterToDelete)
+                            MyChatAlert.db.profile.filterWords[addedChannels[selectedChannel]][filterToDelete] = nil
                             filterToDelete = nil
                         end
                     end,
@@ -458,18 +396,14 @@ MyChatAlert.options = {
                     name = L["Add Name"],
                     desc = L["Add a name to ignore"],
                     type = "input", order = 1, width = 0.5,
-                    set = function(info, val) if val ~= "" then tinsert(MyChatAlert.db.profile.ignoredAuthors, val) end end,
+                    set = function(info, val) if val ~= "" and not val:find("%A") then MyChatAlert.db.profile.ignoredAuthors[#MyChatAlert.db.profile.ignoredAuthors + 1] = val end end,
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
                 removeName = {
                     name = L["Remove Name"],
                     desc = L["Select a name to remove from being ignored"],
                     type = "select", order = 2, width = 0.6,
-                    values = function()
-                        addedAuthors = {}
-                        for _, name in pairs(MyChatAlert.db.profile.ignoredAuthors) do tinsert(addedAuthors, name) end
-                        return addedAuthors
-                    end,
+                    values = function() return MyChatAlert.db.profile.ignoredAuthors or {} end,
                     get = function(info) return authorToDelete end,
                     set = function(info, val) authorToDelete = val end,
                     disabled = function() return not MyChatAlert.db.profile.enabled or not MyChatAlert.db.profile.ignoredAuthors or next(MyChatAlert.db.profile.ignoredAuthors) == nil end,
@@ -480,8 +414,7 @@ MyChatAlert.options = {
                     type = "execute", order = 3, width = 0.8,
                     func = function()
                         if authorToDelete then
-                            tremove(MyChatAlert.db.profile.ignoredAuthors, authorToDelete)
-                            tremove(addedAuthors, authorToDelete)
+                            MyChatAlert.db.profile.ignoredAuthors[authorToDelete] = nil
                             authorToDelete = nil
                         end
                     end,
@@ -508,3 +441,50 @@ MyChatAlert.options = {
         --]]
     },
 }
+
+-------------------------------------------------------------
+-------------------------- HELPERS --------------------------
+-------------------------------------------------------------
+
+UpdateAvailableChannels = function()
+    availableChannels = {} -- flush for recreation
+
+    availableChannels[#availableChannels + 1] = L["MyChatAlert Global Keywords"]
+
+    for i = 1, NUM_CHAT_WINDOWS do
+        local num, name = GetChannelName(i)
+        if num > 0 then -- number channel, e.g. 2. Trade - City
+            local channel = num .. L["Number delimiter"] .. " " .. name
+            availableChannels[#availableChannels + 1] = channel
+        else
+            availableChannels[#availableChannels + 1] = name
+        end
+    end
+
+    -- standard, non-numbered channels
+    availableChannels[#availableChannels + 1] = L["Guild"]
+    availableChannels[#availableChannels + 1] = L["Loot"]
+    availableChannels[#availableChannels + 1] = L["Officer"]
+    availableChannels[#availableChannels + 1] = L["Party"]
+    availableChannels[#availableChannels + 1] = L["Party Leader"]
+    availableChannels[#availableChannels + 1] = L["Raid"]
+    availableChannels[#availableChannels + 1] = L["Raid Leader"]
+    availableChannels[#availableChannels + 1] = L["Raid Warning"]
+    availableChannels[#availableChannels + 1] = L["Say"]
+    availableChannels[#availableChannels + 1] = L["System"]
+    availableChannels[#availableChannels + 1] = L["Yell"]
+
+    return availableChannels
+end
+
+UpdateAddedChannels = function()
+    addedChannels = {}
+    for chan, _ in pairs(MyChatAlert.db.profile.triggers) do addedChannels[#addedChannels + 1] = chan end
+    return addedChannels
+end
+
+GetAvailableOutputs = function()
+    local availableOutputs = {}
+    for i = 1, #MyChatAlert.outputFrames do availableOutputs[i] = MyChatAlert.outputFrames[i].readable end
+    return availableOutputs
+end

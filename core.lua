@@ -7,8 +7,8 @@ local L = LibStub("AceLocale-3.0"):GetLocale("MyChatAlert")
 local TrimRealmName, interp, rgbToHex, MessageHasTrigger, ColorWord, ClassColorFromGUID
 
 -- localize global functions
-local format, pairs, tinsert, tremove, sub, find, time, gsub, floor, fmod, lower = string.format, pairs, table.insert, table.remove, string.sub, string.find, time, string.gsub, math.floor, math.fmod, string.lower
-local IsInInstance, UnitName, PlaySound, GetPlayerInfoByGUID, GetClassColor = IsInInstance, UnitName, PlaySound, GetPlayerInfoByGUID, GetClassColor
+local format, pairs, tremove, sub, find, time, gsub, floor, fmod, lower = string.format, pairs, table.remove, string.sub, string.find, time, string.gsub, math.floor, math.fmod, string.lower
+local IsInInstance, UnitName, PlaySound, GetPlayerInfoByGUID, GetClassColor, UnitGUID = IsInInstance, UnitName, PlaySound, GetPlayerInfoByGUID, GetClassColor, UnitGUID
 
 -------------------------------------------------------------
 ----------------------- ACE FUNCTIONS -----------------------
@@ -21,25 +21,6 @@ function MyChatAlert:OnInitialize()
     self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("MyChatAlert", "MyChatAlert")
     self:RegisterChatCommand("mca", "ChatCommand")
     self:CreateAlertFrame()
-
-    -- Migrate SVs if needed
-    if self.db.profile.channels and self.db.profile.words then
-        if not self.db.profile.triggers then self.db.profile.triggers = {} end
-        if not self.db.profile.filterWords then self.db.profile.filterWords = {} end
-
-        -- main part of migration is moving from a list of words for all channels to a list of words for each individual channel
-        for _, channel in pairs(self.db.profile.channels) do
-            local words = {}
-            for _, word in pairs(self.db.profile.words) do
-                tinsert(words, word)
-            end
-            self.db.profile.triggers[channel] = words
-        end
-
-        -- once migrated, delete the old ones
-        self.db.profile.channels = nil
-        self.db.profile.words = nil
-    end
 end
 
 function MyChatAlert:OnEnable()
@@ -74,7 +55,7 @@ function MyChatAlert:OnDisable()
     if not self.db.profile.disableInInstance or type and type == "none" then return false, "not disabled in instance" end
 
     self:UnregisterEvent("CHAT_MSG_CHANNEL")
-    for _, event in pairs(self.eventMap) do self:UnregisterEvent(event) end
+    for i = 1, #self.eventMap do self:UnregisterEvent(self.eventMap[i]) end
 
     -- don't unregister ZONE_CHANGED** events, need them to toggle back on after an instance
 end
@@ -160,10 +141,13 @@ function MyChatAlert:CHAT_MSG_YELL(event, message, author, _, _, _, _, _, _, _, 
 end
 
 function MyChatAlert:ZONE_CHANGED()
-    local _, type = IsInInstance()
+    if self.db.profile.disableInInstance then
+        local _, type = IsInInstance()
+        if not type then return end
 
-    if type == "none" then self:OnEnable()
-    elseif self.db.profile.disableInInstance and type and type ~= "none" then self:OnDisable()
+        if type == "none" then self:OnEnable()
+        else self:OnDisable()
+        end
     end
 end
 
@@ -187,7 +171,7 @@ function MyChatAlert:ChatCommand(arg)
     elseif arg1 == "ignore" then
         if arg2 and arg2 ~= "" and not arg2:find("%A") then
             -- want to make sure arg2 (name) exists and only contains letters
-            tinsert(self.db.profile.ignoredAuthors, arg2)
+            self.db.profile.ignoredAuthors[#self.db.profile.ignoredAuthors + 1] = arg2
         end
     else -- just open the options
         InterfaceOptionsFrame_OpenToCategory(self.optionsFrame) -- need two calls
@@ -266,7 +250,7 @@ function MyChatAlert:CreateAlertFrame()
 
     self.alertFrame.frame:SetCallback("OnShow", function(widget)
         self.alertFrame.AddHeaders(self.alertFrame.frame)
-        for i, alert in pairs(self.alertFrame.alerts) do self.alertFrame.AddEntry(i, alert, self.alertFrame.frame) end
+        for i = 1, #self.alertFrame.alerts do self.alertFrame.AddEntry(i, self.alertFrame.alerts[i], self.alertFrame.frame) end
         self.alertFrame.frame:SetStatusText(format(L["Number of alerts: %s"], #self.alertFrame.alerts))
     end)
 
@@ -313,7 +297,7 @@ end
 function MyChatAlert:AddAlert(word, author, authorGUID, channel, msg, coloredMsg) -- makes sure no more than 15 alerts are stored
     if #self.alertFrame.alerts == self.alertFrame.MAX_ALERTS_TO_KEEP then tremove(self.alertFrame.alerts, 1) end -- remove first/oldest alert
 
-    tinsert(self.alertFrame.alerts, {word = word, author = author, msg = msg, channel = channel, time = time()}) -- insert alert
+    self.alertFrame.alerts[#self.alertFrame.alerts + 1] = {word = word, author = author, msg = msg, channel = channel, time = time()}
 
     if self.alertFrame.frame:IsVisible() then -- reload frame
         self.alertFrame.frame:Hide()
@@ -398,7 +382,9 @@ MessageHasTrigger = function(message, channel)
     -- general channels with CHAT_MSG_CHANNEL get checked before entering the function
     local msg = message
 
-    for _, word in pairs(MyChatAlert.db.profile.triggers[channel]) do
+    for i = 1, #MyChatAlert.db.profile.triggers[channel] do
+        local word = MyChatAlert.db.profile.triggers[channel][i]
+
         if word:find("[-+]") then -- advanced pattern matching
             if not word:sub(1, 1):find("[-+]") then
                 -- the word contains -+ operators, but doesn't start with one
@@ -464,8 +450,8 @@ end
 function MyChatAlert:AuthorIgnored(author)
     if author == UnitName("player") then return true, "author is player" end -- don't do anything if it's your own message
 
-    for _, name in pairs(self.db.profile.ignoredAuthors) do
-        if author == name then return true, "author is ignored" end
+    for i = 1, #self.db.profile.ignoredAuthors do
+        if author == self.db.profile.ignoredAuthors[i] then return true, "author is ignored" end
     end
 
     --[[ Disabled due to not working, no demand/no plans to fix it 10/28/19
@@ -485,8 +471,8 @@ end
 function MyChatAlert:MessageIgnored(message, channel)
     -- ignore message due to containing a filtered word
     if self.db.profile.filterWords and self.db.profile.filterWords[channel] then
-        for _, word in pairs(self.db.profile.filterWords[channel]) do
-            if message:lower():find(word:lower()) then return true end
+        for i = 1, #self.db.profile.filterWords[channel] do
+            if message:lower():find(self.db.profile.filterWords[channel][i]:lower()) then return true end
         end
     end
 
@@ -494,8 +480,11 @@ function MyChatAlert:MessageIgnored(message, channel)
 end
 
 function MyChatAlert:IsDuplicateMessage(message, author)
-    for i, alert in pairs(self.alertFrame.alerts) do
-        if message == alert.msg and author == alert.author and time() - alert.time < self.db.profile.dedupTime then return true end
+    for i = 1, #self.alertFrame.alerts do
+        if message == self.alertFrame.alerts[i].msg and author == self.alertFrame.alerts[i].author
+        and time() - self.alertFrame.alerts[i].time < self.db.profile.dedupTime then
+            return true
+        end
     end
 
     return false
