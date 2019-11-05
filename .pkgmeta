@@ -16,4 +16,4 @@ manual-changelog:
     markup-type: markdown
 
 ignore:
-    - README.md
+    - Addon_Images
