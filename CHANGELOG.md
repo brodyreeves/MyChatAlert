@@ -1,5 +1,9 @@
 # MyChatAlert
 
+## 2.4.6.2
+
+- Bug fix: All keywords registered to a channel should be checked again
+
 ## 2.4.6
 
 #### New Features

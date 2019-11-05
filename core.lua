@@ -380,48 +380,50 @@ MessageHasTrigger = function(message, channel)
     -- don't need to check existence here because it's already been checked
     -- named channels with own events have their table created when event is registered
     -- general channels with CHAT_MSG_CHANNEL get checked before entering the function
-    local msg = message
-
     for i = 1, #MyChatAlert.db.profile.triggers[channel] do
         local word = MyChatAlert.db.profile.triggers[channel][i]
 
         if word:find("[-+]") then -- advanced pattern matching
+            local msg = message
+            local haveMatch = true
+
             if not word:sub(1, 1):find("[-+]") then
                 -- the word contains -+ operators, but doesn't start with one
                 -- something along the form of lf+tank-brs
                 local firstOp, _ = word:find("[-+]") -- find first operator to split first term off
                 local wordStart, wordEnd = message:lower():find(word:lower():sub(1, firstOp - 1)) -- try to find first term in message
 
-                if not wordStart then return false, "couldn't find keyword first term" -- didnt find it
-                else -- surround keyword with color flags and continue matching terms
+                if not wordStart then haveMatch = false -- didnt find it
+                else -- surround term with color flags and continue matching terms
                     msg = ColorWord(wordStart, wordEnd, msg)
                 end
-
             end
 
             for subword in word:lower():gmatch("[-+]%a+") do -- split by operators
-                local wordStart, wordEnd = message:lower():find(subword:sub(2, -1)) -- find term in message
+                if haveMatch then
+                    local wordStart, wordEnd = message:lower():find(subword:sub(2, -1)) -- try to find term in message
 
-                if subword:sub(1, 1) == "+" then -- want term to be in the message
-                    if not wordStart then return false, "couldn't find keyword additional term" end
-                else -- '-' operator, don't want term to be in message
-                    if wordStart then return false, "found keyword exclusion term" end
+                    if subword:sub(1, 1) == "+" then -- want term to be in the message
+                        if wordStart then -- found the term, surround with color flags and continue matching terms
+                            msg = ColorWord(wordStart, wordEnd, msg)
+                        else haveMatch = false -- didn't find it
+                        end
+                    else -- '-' operator, don't want term to be in message
+                        if wordStart then haveMatch = false end
+                    end
                 end
-
-                -- if term was found then color it
-                if wordStart then msg = ColorWord(wordStart, wordEnd, msg) end
             end
 
+            if haveMatch then return word, msg end -- found the keyword, msg has been colored on the way
+
         else -- simple word matching
-            local wordStart, wordEnd = message:lower():find(word:lower()) -- find word in message
+            local wordStart, wordEnd = message:lower():find(word:lower()) -- try to find keyword in message
 
-            if not wordStart then return false, "couldn't find keyword" end -- word wasn't found
-
-            msg = ColorWord(wordStart, wordEnd, msg)
+            if wordStart then return word, ColorWord(wordStart, wordEnd, message) end -- found the keyword, surround with color flags
         end
-
-        return word, msg
     end
+
+    return false, "no matching keywords"
 end
 
 ColorWord = function(wordStart, wordEnd, message)
