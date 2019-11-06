@@ -81,7 +81,7 @@ Download it and install as a typical wow addon. Customization can be found in th
 ![keywords section pic]
 
 - `Select Channel` - Selectable list of added channels, pick one to add keywords too
-  - `MyChatAlert Global Keywords` is for keywords to watch for in every added channel
+  - `MyChatAlert Globals` is for keywords to watch for in every added channel
 - `Add Keyword` - Type in the keyword you want to be alerted for
   - Simple keyword: `dm` - Alerts if `dm` is found in a message
   - Advanced keyword: `dm+west-east` - Alerts if `dm` is found in a message that also contains `west` and does not contain `east`
@@ -92,7 +92,8 @@ Download it and install as a typical wow addon. Customization can be found in th
 
 ![filter words section pic]
 
-- `Select Channel` - Selectable list of added channels, pick one to add filter words too
+- `Select Channel` - Selectable list of added channels, pick one to add filter words to
+  - `MyChatAlert Globals` is for words to filter from every added channel
 - `Add Filter` - Type in a word if you don't want to receive alerts for messages containing the word
   - E.g. `guild` - Don't alert for messages that contain `guild`, even if the message contains a keyword
 - `Remove Filter` - Selectable list of added filter words, pick one to be removed

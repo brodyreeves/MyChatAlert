@@ -449,7 +449,7 @@ MyChatAlert.options = {
 UpdateAvailableChannels = function()
     availableChannels = {} -- flush for recreation
 
-    availableChannels[#availableChannels + 1] = L["MyChatAlert Global Keywords"]
+    availableChannels[#availableChannels + 1] = L["MyChatAlert Globals"]
 
     for i = 1, NUM_CHAT_WINDOWS do
         local num, name = GetChannelName(i)

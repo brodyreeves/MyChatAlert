@@ -21,6 +21,27 @@ function MyChatAlert:OnInitialize()
     self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("MyChatAlert", "MyChatAlert")
     self:RegisterChatCommand("mca", "ChatCommand")
     self:CreateAlertFrame()
+
+    -- migrate MyChatAlert Global Keywords -> MyChatAlert Globals if not already done
+    if self.db.profile.triggers[L["MyChatAlert Global Keywords"]] then -- MyChatAlert Global Keywords still exists
+        if not self.db.profile.triggers[L["MyChatAlert Globals"]] then -- MyChatAlert Globals hasn't been created
+
+            -- create tables for new "MyChatAlert Globals" channel
+            self.db.profile.triggers[L["MyChatAlert Globals"]] = {}
+            self.db.profile.filterWords[L["MyChatAlert Globals"]] = {}
+
+            -- populate with words from "MyChatAlert Global Keywords"
+            for i = 1, #self.db.profile.triggers[L["MyChatAlert Global Keywords"]] do
+                -- insert the keyword into the new table
+                self.db.profile.triggers[L["MyChatAlert Globals"]][#self.db.profile.triggers[L["MyChatAlert Globals"]] + 1] = self.db.profile.triggers[L["MyChatAlert Global Keywords"]][i]
+            end
+
+            -- delete old tables to keep stuff clean
+            self.db.profile.triggers[L["MyChatAlert Global Keywords"]] = nil
+            self.db.profile.filterWords[L["MyChatAlert Global Keywords"]] = nil
+        end
+    end
+    -- migration complete
 end
 
 function MyChatAlert:OnEnable()
@@ -278,8 +299,8 @@ function MyChatAlert:CheckAlert(event, message, author, authorGUID, channel)
 
     local match, coloredMsg = nil, nil
 
-    if self.db.profile.triggers[L["MyChatAlert Global Keywords"]] then -- need to check global keywords
-        match, coloredMsg = MessageHasTrigger(message, L["MyChatAlert Global Keywords"])
+    if self.db.profile.triggers[L["MyChatAlert Globals"]] then -- need to check global keywords
+        match, coloredMsg = MessageHasTrigger(message, L["MyChatAlert Globals"])
         if match then
             self:AddAlert("*" .. match:sub(1, 11), TrimRealmName(author), authorGUID, channel:sub(1, 18), message, coloredMsg) -- :sub() just to help keep display width under control
             return true
@@ -471,10 +492,19 @@ function MyChatAlert:AuthorIgnored(author)
 end
 
 function MyChatAlert:MessageIgnored(message, channel)
-    -- ignore message due to containing a filtered word
-    if self.db.profile.filterWords and self.db.profile.filterWords[channel] then
-        for i = 1, #self.db.profile.filterWords[channel] do
-            if message:lower():find(self.db.profile.filterWords[channel][i]:lower()) then return true end
+    if self.db.profile.filterWords then
+        -- ignore message due to containing a global filtered word
+        if self.db.profile.filterWords[L["MyChatAlert Globals"]] then
+            for i = 1, #self.db.profile.filterWords[L["MyChatAlert Globals"]] do
+                if message:lower():find(self.db.profile.filterWords[L["MyChatAlert Globals"]][i]:lower()) then return true, "message has global filter" end
+            end
+        end
+
+        -- ignore message due to containing a channel filtered word
+        if self.db.profile.filterWords[channel] then
+            for i = 1, #self.db.profile.filterWords[channel] do
+                if message:lower():find(self.db.profile.filterWords[channel][i]:lower()) then return true, "message has channel filter" end
+            end
         end
     end
 

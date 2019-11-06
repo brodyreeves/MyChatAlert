@@ -1,5 +1,11 @@
 # MyChatAlert
 
+## 2.4.7
+
+- `MyChatAlert Globals` is replacing the `MyChatAlert Global Keywords` channel, and allows for global filter words as well
+  - existing global keywords will be transferred over to prevent data loss
+- README updated to be much more comprehensive
+
 ## 2.4.6.2
 
 - Bug fix: All keywords registered to a channel should be checked again
