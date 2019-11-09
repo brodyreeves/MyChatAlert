@@ -396,7 +396,7 @@ MyChatAlert.options = {
                     name = L["Add Name"],
                     desc = L["Add a name to ignore"],
                     type = "input", order = 1, width = 0.5,
-                    set = function(info, val) if val ~= "" and not val:find("%A") then MyChatAlert.db.profile.ignoredAuthors[#MyChatAlert.db.profile.ignoredAuthors + 1] = val end end,
+                    set = function(info, val) if val ~= "" then MyChatAlert.db.profile.ignoredAuthors[#MyChatAlert.db.profile.ignoredAuthors + 1] = val end end,
                     disabled = function() return not MyChatAlert.db.profile.enabled end,
                 },
                 removeName = {

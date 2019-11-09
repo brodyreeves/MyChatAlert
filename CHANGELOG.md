@@ -4,6 +4,8 @@
 
 - `MyChatAlert Globals` is replacing the `MyChatAlert Global Keywords` channel, and allows for global filter words as well
   - existing global keywords will be transferred over to prevent data loss
+- Bug fix: Names with special characters can be ignored now
+  - Trade-off: Invalid names can be ignored as well now, they don't cause issues, just won't ignore anything; might write a name validation check at some point, but that's fairly low priority
 - README updated to be much more comprehensive
 
 ## 2.4.6.2
