@@ -343,6 +343,7 @@ function MyChatAlert:AddAlert(word, author, authorGUID, channel, msg, coloredMsg
             keyword = keywordColor .. word .. baseColor,
             author = authorColor .. "|Hplayer:" .. author .. ":0|h" .. author .. "|h" .. baseColor,
             message = messageColor .. coloredMsg .. baseColor,
+            channel = messageColor .. channel .. baseColor,
         }
 
         local message = baseColor .. interp(self.db.profile.printedMessage or L["Printed alert"], replacement)

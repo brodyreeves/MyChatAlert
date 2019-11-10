@@ -1,5 +1,9 @@
 # MyChatAlert
 
+## 2.4.8
+
+- `${channel}` is now a replacement option for printed alerts, inheriting the message color
+
 ## 2.4.7
 
 - `MyChatAlert Globals` is replacing the `MyChatAlert Global Keywords` channel, and allows for global filter words as well

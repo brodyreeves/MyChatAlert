@@ -61,7 +61,7 @@ Download it and install as a typical wow addon. Customization can be found in th
 - `Destination` - Where should the printed alerts be displayed
 - `Print Message` - If you want to override the default printed message, what you enter here is used as the format
   - `${keyword}`, `${author}`, `${message}` will be replaced with the respective fields when an alert is triggered
-  - E.g. `[${author}] > ${message}` will output an alert of the format: `[Name] > Something said to trigger an alert`
+  - E.g. `[${author}]: ${message}` will output an alert of the format: `[Name]: Something said to trigger an alert`
 - `Base Text Color` - The base color of the alert text (anything that isn't a replacement)
 - `Keyword Color` - The color to use for the keyword, colors both `${keyword}` replacements and the keyword within ${message} replacements
 - `Author Color` - The color to use for the author
