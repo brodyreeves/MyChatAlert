@@ -2,6 +2,8 @@
 
 ## 2.4.9
 
+- Cleaned up options frame to make it less cluttered and easier to use
+  - Options are now split into tabs, rather than one long list
 - Better method used for the alert frame's close-on-escape-press handling
 
 ## 2.4.8.2
