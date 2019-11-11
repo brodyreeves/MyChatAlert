@@ -1,5 +1,9 @@
 # MyChatAlert
 
+## 2.4.9
+
+- Better method used for the alert frame's close-on-escape-press handling
+
 ## 2.4.8.2
 
 - Bug fix - disabling alerts was broken, now it's fixed and working properly
