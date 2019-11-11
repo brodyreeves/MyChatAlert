@@ -144,7 +144,7 @@ MyChatAlert.options = {
                 },
                 printMessage = {
                     name = L["Print Message"],
-                    desc = L["Override the default printed alert message. Enter 'DEFAULT' to revert back to default message. Supported text replacements are: '${keyword}', '${author}', '${message}'"],
+                    desc = L["Override the default printed alert message. Enter 'DEFAULT' to revert back to default message. Supported text replacements are: '${keyword}', '${author}', '${message}', '${channel}'"],
                     type = "input", order = 3, width = 1,
                     get = function(info) return MyChatAlert.db.profile.printedMessage end,
                     set = function(info, val)
