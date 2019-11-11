@@ -1,5 +1,9 @@
 # MyChatAlert
 
+## 2.4.8.2
+
+- Bug fix - disabling alerts was broken, now it's fixed and working properly
+
 ## 2.4.8
 
 - `${channel}` is now a replacement option for printed alerts, inheriting the message color
