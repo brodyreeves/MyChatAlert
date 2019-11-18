@@ -1,5 +1,10 @@
 # MyChatAlert
 
+## 2.5.0
+
+- Dynamic minimap icon for enabled/disabled alert status
+- Update README for new settings menu
+
 ## 2.4.9
 
 - Cleaned up options frame to make it less cluttered and easier to use

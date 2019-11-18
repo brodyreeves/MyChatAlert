@@ -36,9 +36,9 @@ Download it and install as a typical wow addon. Customization can be found in th
 
 ## Settings Walkthrough
 
-### First Section
+### General Section
 
-![first section pic]
+![general section pic]
 
 - `Enable` - Toggles alerts on or off
 - `Disable in instance` - If checked, suppress alerts while inside of an instance
@@ -67,18 +67,18 @@ Download it and install as a typical wow addon. Customization can be found in th
 - `Author Color` - The color to use for the author
 - `Message Color` - The color to use for the message that triggered the alert
 
-### Channels Section
+### Trigger Section
 
-![channels section pic]
+![trigger section pic]
+
+#### Channels
 
 - `Select New Channel` - Quick-add list of channels you can add to be watched
 - `Remove Channel` - Selectable list of added channels, pick one to be removed
 - `Remove Channel (Button)` - Press the button after selecting a channel to remove it (along with associated keywords and filter words)
 - `Add Channel` - You can manually type in a channel name if you want to add something not in the quick-add list
 
-### Keywords Section
-
-![keywords section pic]
+#### Keywords
 
 - `Select Channel` - Selectable list of added channels, pick one to add keywords too
   - `MyChatAlert Globals` is for keywords to watch for in every added channel
@@ -88,9 +88,11 @@ Download it and install as a typical wow addon. Customization can be found in th
 - `Remove Keyword` - Selectable list of added keywords, pick one to be removed
 - `Remove Keyword (Button)` - Press the button after selecting a keyword to remove it
 
-### Filter Words Section
+### Filter Section
 
-![filter words section pic]
+![filter section pic]
+
+#### Filter Words
 
 - `Select Channel` - Selectable list of added channels, pick one to add filter words to
   - `MyChatAlert Globals` is for words to filter from every added channel
@@ -99,9 +101,7 @@ Download it and install as a typical wow addon. Customization can be found in th
 - `Remove Filter` - Selectable list of added filter words, pick one to be removed
 - `Remove Filter (Button)` - Press the button after selecting a filter word to remove it
 
-### Ignore Authors Section
-
-![ignore authors section pic]
+#### Ignore Authors
 
 - `Add Name` - Type in the name of a player you don't want to receive alerts from
   - E.g. `GuildRecruiter`: Don't alert for messages sent by `GuildRecruiter`, even if the message contains a keyword
@@ -116,15 +116,13 @@ If you want to help translate the addon to your locale, you can view what phrase
 
 Donation info was requested, so I added it to the Curseforge project. The side panel has a button with this [PayPal][paypal link] link, or you can also use [Venmo][venmo link] if you prefer that
 
-[alert frame pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/master/Addon_Images/ss-alert-frame.png "Alert Frame"
-[chat alert pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/master/Addon_Images/ss-chat-alert.png "Printed Alert"
-[first section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/master/Addon_Images/ss-settings-1.png "Top Settings"
-[sound section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/master/Addon_Images/ss-settings-2.png "Sound Settings"
-[printing section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/master/Addon_Images/ss-settings-3.png "Printing Settings"
-[channels section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/master/Addon_Images/ss-settings-4.png "Channel Settings"
-[keywords section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/master/Addon_Images/ss-settings-5.png "Keyword Settings"
-[filter words section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/master/Addon_Images/ss-settings-6.png "Filter Word Settings"
-[ignore author section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/master/Addon_Images/ss-settings-7.png "Ignore Author Settings"
+[alert frame pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/2.5.0/Addon_Images/ss-alert-frame.png "Alert Frame"
+[chat alert pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/2.5.0/Addon_Images/ss-chat-alert.png "Printed Alert"
+[general section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/2.5.0/Addon_Images/ss-settings-general.png "General Settings"
+[sound section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/2.5.0/Addon_Images/ss-settings-sound.png "Sound Settings"
+[printing section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/2.5.0/Addon_Images/ss-settings-printing.png "Printing Settings"
+[trigger section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/2.5.0/Addon_Images/ss-settings-trigger.png "Trigger Settings"
+[filter section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/2.5.0/Addon_Images/ss-settings-filter.png "Filter Settings"
 
 [wowhead sound link]: https://classic.wowhead.com/sounds
 [github sound issue link]: https://github.com/brodyreeves/MyChatAlert/issues/6

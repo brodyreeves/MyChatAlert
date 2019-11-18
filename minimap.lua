@@ -4,14 +4,22 @@ local L = LibStub("AceLocale-3.0"):GetLocale("MyChatAlert", false)
 local ldb = LibStub:GetLibrary("LibDataBroker-1.1", true)
 if not ldb then return end
 
+-- local consts
 local TT_HEAD = "|cFF00FF00%s|r"
 local TT_LINE = "|cFFCFCFCF%s|r"
 local TT_HINT = "|r%s:|cFFCFCFCF %s"
 
+local GetIcon = function()
+    if not MyChatAlert.db then return "Interface\\AddOns\\MyChatAlert\\Media\\icon" end -- fallback if SVs aren't loaded
+
+    return MyChatAlert.db.profile.enabled and "Interface\\AddOns\\MyChatAlert\\Media\\icon"
+    or "Interface\\AddOns\\MyChatAlert\\Media\\icon-disabled"
+end
+
 local plugin = ldb:NewDataObject(addonName, {
     type = "data source",
     text = "0",
-    icon = "Interface\\AddOns\\MyChatAlert\\Media\\icon",
+    icon = GetIcon(),
 })
 
 function plugin.OnClick(self, button)
@@ -27,6 +35,9 @@ function plugin.OnClick(self, button)
     elseif button == "RightButton" then
         if IsControlKeyDown() then
             MyChatAlert.db.profile.enabled = not MyChatAlert.db.profile.enabled
+
+            plugin.icon = GetIcon()
+
             if MyChatAlert.db.profile.enabled then MyChatAlert:OnEnable()
             else MyChatAlert:OnDisable() end
 
@@ -63,9 +74,11 @@ f:SetScript("OnEvent", function()
         MyChatAlertLDBIconDB.hide = false
     end
 
+    plugin.icon = GetIcon()
+
     icon:Register(addonName, plugin, MyChatAlertLDBIconDB)
 end)
-f:RegisterEvent("PLAYER_LOGIN")
+f:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 function MyChatAlert:MinimapToggle()
     MyChatAlertLDBIconDB.hide = not MyChatAlertLDBIconDB.hide
