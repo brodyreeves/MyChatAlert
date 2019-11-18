@@ -1,4 +1,9 @@
-## Interface: 11302
+#@retail@
+## Interface: 80205
+#@end-retail@
+#@non-retail@
+# ## Interface: 11302
+#@end-non-retail@
 ## Title: My Chat Alert
 ## Version: @project-version@
 ## Notes: Alerts based on keywords in chat channels

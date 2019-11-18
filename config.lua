@@ -65,9 +65,8 @@ MyChatAlert.options = {
                     set = function(info, val)
                         MyChatAlert.db.profile.enabled = val
 
-                        local toggled, err
-                        if val then toggled, err = MyChatAlert:OnEnable()
-                        else toggled, err = MyChatAlert:OnDisable()
+                        if val then MyChatAlert:OnEnable()
+                        else MyChatAlert:OnDisable()
                         end
                     end,
                 },
