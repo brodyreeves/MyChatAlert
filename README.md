@@ -116,13 +116,13 @@ If you want to help translate the addon to your locale, you can view what phrase
 
 Donation info was requested, so I added it to the Curseforge project. The side panel has a button with this [PayPal][paypal link] link, or you can also use [Venmo][venmo link] if you prefer that
 
-[alert frame pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/2.5.0/Addon_Images/ss-alert-frame.png "Alert Frame"
-[chat alert pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/2.5.0/Addon_Images/ss-chat-alert.png "Printed Alert"
-[general section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/2.5.0/Addon_Images/ss-settings-general.png "General Settings"
-[sound section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/2.5.0/Addon_Images/ss-settings-sound.png "Sound Settings"
-[printing section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/2.5.0/Addon_Images/ss-settings-printing.png "Printing Settings"
-[trigger section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/2.5.0/Addon_Images/ss-settings-trigger.png "Trigger Settings"
-[filter section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/2.5.0/Addon_Images/ss-settings-filter.png "Filter Settings"
+[alert frame pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/v2.5.0/Addon_Images/ss-alert-frame.png "Alert Frame"
+[chat alert pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/v2.5.0/Addon_Images/ss-chat-alert.png "Printed Alert"
+[general section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/v2.5.0/Addon_Images/ss-settings-general.png "General Settings"
+[sound section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/v2.5.0/Addon_Images/ss-settings-sound.png "Sound Settings"
+[printing section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/v2.5.0/Addon_Images/ss-settings-printing.png "Printing Settings"
+[trigger section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/v2.5.0/Addon_Images/ss-settings-trigger.png "Trigger Settings"
+[filter section pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/v2.5.0/Addon_Images/ss-settings-filter.png "Filter Settings"
 
 [wowhead sound link]: https://classic.wowhead.com/sounds
 [github sound issue link]: https://github.com/brodyreeves/MyChatAlert/issues/6
