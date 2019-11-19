@@ -25,12 +25,12 @@ jobs:
       run: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash
       env:
         CF_API_KEY: ${{ secrets.CF_API_KEY }}
-        # WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+        WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
 
     - name: Create Classic Package
       run: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash -s -- -g 1.13.2
       env:
         CF_API_KEY: ${{ secrets.CF_API_KEY }}
-        # WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+        WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
 
 # trimmed from https://github.com/WeakAuras/WeakAuras2/blob/9c2b115d9995f182feacda97c22a154f4074df07/.github/workflows/build.yml

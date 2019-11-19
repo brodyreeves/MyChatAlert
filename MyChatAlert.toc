@@ -9,6 +9,7 @@
 ## Notes: Alerts based on keywords in chat channels
 ## Author: inSpired_TV
 ## X-Curse-Project-ID: 341693
+## X-WoWI-ID: 25445
 
 ## OptionalDeps: Ace3, LibDBIcon-1.0
 ## X-Embeds: Ace3
