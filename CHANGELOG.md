@@ -4,7 +4,7 @@
 
 - Dynamic minimap icon for enabled/disabled alert status
 - Update README for new settings menu
-- Following versions such as 2.5.0.# are my testing curseforge autodeploy for retail+classic unless otherwise states
+- Now deployed to classic and retail
 
 ## 2.4.9
 
