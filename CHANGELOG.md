@@ -1,5 +1,13 @@
 # MyChatAlert
 
+## 2.5.1
+
+- Bug fix - minimap icon wasn't updating when enable was toggled through config panel, now it does
+
+## 2.5.0.1
+
+- Getting parallel deployment working
+
 ## 2.5.0
 
 - Dynamic minimap icon for enabled/disabled alert status

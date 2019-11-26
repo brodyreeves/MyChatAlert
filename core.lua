@@ -68,6 +68,8 @@ function MyChatAlert:OnEnable()
         self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
     end
 
+    self:UpdateMMIcon()
+
     return true
 end
 
@@ -78,6 +80,9 @@ function MyChatAlert:OnDisable()
     for i = 1, #self.eventMap do self:UnregisterEvent(self.eventMap[i]) end
 
     -- don't unregister ZONE_CHANGED** events, need them to toggle back on after an instance
+
+    self:UpdateMMIcon()
+
     return true
 end
 

@@ -9,17 +9,10 @@ local TT_HEAD = "|cFF00FF00%s|r"
 local TT_LINE = "|cFFCFCFCF%s|r"
 local TT_HINT = "|r%s:|cFFCFCFCF %s"
 
-local GetIcon = function()
-    if not MyChatAlert.db then return "Interface\\AddOns\\MyChatAlert\\Media\\icon" end -- fallback if SVs aren't loaded
-
-    return MyChatAlert.db.profile.enabled and "Interface\\AddOns\\MyChatAlert\\Media\\icon"
-    or "Interface\\AddOns\\MyChatAlert\\Media\\icon-disabled"
-end
-
 local plugin = ldb:NewDataObject(addonName, {
     type = "data source",
     text = "0",
-    icon = GetIcon(),
+    icon = "Interface\\AddOns\\MyChatAlert\\Media\\icon",
 })
 
 function plugin.OnClick(self, button)
@@ -35,8 +28,6 @@ function plugin.OnClick(self, button)
     elseif button == "RightButton" then
         if IsControlKeyDown() then
             MyChatAlert.db.profile.enabled = not MyChatAlert.db.profile.enabled
-
-            plugin.icon = GetIcon()
 
             if MyChatAlert.db.profile.enabled then MyChatAlert:OnEnable()
             else MyChatAlert:OnDisable() end
@@ -74,7 +65,7 @@ f:SetScript("OnEvent", function()
         MyChatAlertLDBIconDB.hide = false
     end
 
-    plugin.icon = GetIcon()
+    MyChatAlert:UpdateMMIcon()
 
     icon:Register(addonName, plugin, MyChatAlertLDBIconDB)
 end)
@@ -86,4 +77,10 @@ function MyChatAlert:MinimapToggle()
     if MyChatAlertLDBIconDB.hide then LibStub("LibDBIcon-1.0"):Hide(addonName)
     else LibStub("LibDBIcon-1.0"):Show(addonName)
     end
+end
+
+function MyChatAlert:UpdateMMIcon()
+    if not self.db then return "Interface\\AddOns\\MyChatAlert\\Media\\icon" end -- fallback if SVs aren't loaded
+
+    plugin.icon = self.db.profile.enabled and "Interface\\AddOns\\MyChatAlert\\Media\\icon" or "Interface\\AddOns\\MyChatAlert\\Media\\icon-disabled"
 end

@@ -112,7 +112,7 @@ Download it and install as a typical wow addon. Customization can be found in th
 
 If you want to help translate the addon to your locale, you can view what phrases are missing on [Curseforge][curseforge localization link]
 
-### Support the Dev
+## Support the Dev
 
 Donation info was requested, so I added it to the Curseforge project. The side panel has a button with this [PayPal][paypal link] link, or you can also use [Venmo][venmo link] if you prefer that
 
