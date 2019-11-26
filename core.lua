@@ -21,27 +21,6 @@ function MyChatAlert:OnInitialize()
     self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("MyChatAlert", "MyChatAlert")
     self:RegisterChatCommand("mca", "ChatCommand")
     self:CreateAlertFrame()
-
-    -- migrate MyChatAlert Global Keywords -> MyChatAlert Globals if not already done
-    if self.db.profile.triggers[L["MyChatAlert Global Keywords"]] then -- MyChatAlert Global Keywords still exists
-        if not self.db.profile.triggers[L["MyChatAlert Globals"]] then -- MyChatAlert Globals hasn't been created
-
-            -- create tables for new "MyChatAlert Globals" channel
-            self.db.profile.triggers[L["MyChatAlert Globals"]] = {}
-            self.db.profile.filterWords[L["MyChatAlert Globals"]] = {}
-
-            -- populate with words from "MyChatAlert Global Keywords"
-            for i = 1, #self.db.profile.triggers[L["MyChatAlert Global Keywords"]] do
-                -- insert the keyword into the new table
-                self.db.profile.triggers[L["MyChatAlert Globals"]][#self.db.profile.triggers[L["MyChatAlert Globals"]] + 1] = self.db.profile.triggers[L["MyChatAlert Global Keywords"]][i]
-            end
-
-            -- delete old tables to keep stuff clean
-            self.db.profile.triggers[L["MyChatAlert Global Keywords"]] = nil
-            self.db.profile.filterWords[L["MyChatAlert Global Keywords"]] = nil
-        end
-    end
-    -- migration complete
 end
 
 function MyChatAlert:OnEnable()

@@ -53,7 +53,6 @@ L["Message Color"] = true
 L["Minimap"] = true
 L["Misc Options"] = true
 L["MyChatAlert"] = true
-L["MyChatAlert Global Keywords"] = true
 L["MyChatAlert Globals"] = true
 L["Number delimiter"] = "."
 L["Number Header"] = "#."
