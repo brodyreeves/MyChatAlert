@@ -3,6 +3,7 @@
 ## 2.5.1
 
 - Bug fix - minimap icon wasn't updating when enable was toggled through config panel, now it does
+- Bug fix - icon being registered multiple times on certain loads
 
 ## 2.5.0.1
 

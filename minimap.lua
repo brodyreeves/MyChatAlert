@@ -59,6 +59,7 @@ local f = CreateFrame("Frame")
 f:SetScript("OnEvent", function()
     local icon = LibStub("LibDBIcon-1.0", true)
     if not icon then return end
+    if icon:IsRegistered(addonName) then return end
 
     if not MyChatAlertLDBIconDB then
         MyChatAlertLDBIconDB = {}
