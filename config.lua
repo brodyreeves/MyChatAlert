@@ -486,7 +486,7 @@ UpdateAvailableChannels = function()
     for i = 1, NUM_CHAT_WINDOWS do
         local num, name = GetChannelName(i)
         if num > 0 then -- number channel, e.g. 2. Trade - City
-            local channel = num .. L["Number delimiter"] .. " " .. name
+            local channel = num .. L["Number delimiter"] .. name
             availableChannels[#availableChannels + 1] = channel
         else
             availableChannels[#availableChannels + 1] = name

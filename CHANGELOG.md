@@ -1,5 +1,9 @@
 # MyChatAlert
 
+## 2.5.1.1
+
+- Bug fix - tweak number delimiter localization to avoid a hard-coded space in the hope of fixing [Github issue #36](https://github.com/brodyreeves/MyChatAlert/issues/36)
+
 ## 2.5.1
 
 - Bug fix - minimap icon wasn't updating when enable was toggled through config panel, now it does
