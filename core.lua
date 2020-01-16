@@ -24,10 +24,7 @@ function MyChatAlert:OnInitialize()
 end
 
 function MyChatAlert:OnEnable()
-    if not self.db.profile.enabled then return false, "disabled via setting" end
-
-    local _, type = IsInInstance()
-    if self.db.profile.disableInInstance and type and type ~= "none" then return false, "disabled in instance" end
+    if self.db.profile.enabled then return false, "already enabled" end
 
     local chat_msg_chan = false
 
@@ -47,19 +44,21 @@ function MyChatAlert:OnEnable()
         self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
     end
 
+    self.db.profile.enabled = true
     self:UpdateMMIcon()
 
     return true
 end
 
 function MyChatAlert:OnDisable()
-    if self.db.profile.enabled then return false, "enabled via settings" end
+    if not self.db.profile.enabled then return false, "already disabled" end
 
     self:UnregisterEvent("CHAT_MSG_CHANNEL")
     for i = 1, #self.eventMap do self:UnregisterEvent(self.eventMap[i]) end
 
     -- don't unregister ZONE_CHANGED** events, need them to toggle back on after an instance
 
+    self.db.profile.enabled = false
     self:UpdateMMIcon()
 
     return true
