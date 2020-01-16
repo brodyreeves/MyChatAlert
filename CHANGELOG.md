@@ -1,5 +1,9 @@
 # MyChatAlert
 
+## 2.5.1.3
+
+- Bug fix - tied to previous fix
+
 ## 2.5.1.2
 
 - Bug fix - disableInInstance now functions correctly

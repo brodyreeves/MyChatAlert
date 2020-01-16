@@ -21,10 +21,13 @@ function MyChatAlert:OnInitialize()
     self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("MyChatAlert", "MyChatAlert")
     self:RegisterChatCommand("mca", "ChatCommand")
     self:CreateAlertFrame()
+    self:OnEnable(true) -- force OnEnable to run
 end
 
-function MyChatAlert:OnEnable()
-    if self.db.profile.enabled then return false, "already enabled" end
+function MyChatAlert:OnEnable(firstLoad)
+    firstLoad = firstLoad or false
+
+    if self.db.profile.enabled and not firstLoad then return false, "already enabled" end
 
     local chat_msg_chan = false
 
