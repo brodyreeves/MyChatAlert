@@ -1,5 +1,9 @@
 # MyChatAlert
 
+## 2.5.1.4
+
+- Disabled in instance is now working correctly
+
 ## 2.5.1.3
 
 - Bug fix - tied to previous fix
