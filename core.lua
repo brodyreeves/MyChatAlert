@@ -25,10 +25,6 @@ function MyChatAlert:OnInitialize()
 end
 
 function MyChatAlert:OnEnable(firstLoad)
-    firstLoad = firstLoad or false
-
-    if self.db.profile.enabled and not firstLoad then return false, "already enabled" end
-
     local chat_msg_chan = false
 
     for chan, _ in pairs(self.db.profile.triggers) do -- register all necessary events for added channels
@@ -41,11 +37,9 @@ function MyChatAlert:OnEnable(firstLoad)
         end
     end
 
-    if self.db.profile.disableInInstance then
-        self:RegisterEvent("ZONE_CHANGED")
-        self:RegisterEvent("ZONE_CHANGED_INDOORS")
-        self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-    end
+    self:RegisterEvent("ZONE_CHANGED")
+    self:RegisterEvent("ZONE_CHANGED_INDOORS")
+    self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 
     self.db.profile.enabled = true
     self:UpdateMMIcon()
@@ -54,12 +48,12 @@ function MyChatAlert:OnEnable(firstLoad)
 end
 
 function MyChatAlert:OnDisable()
-    if not self.db.profile.enabled then return false, "already disabled" end
-
     self:UnregisterEvent("CHAT_MSG_CHANNEL")
     for i = 1, #self.eventMap do self:UnregisterEvent(self.eventMap[i]) end
 
-    -- don't unregister ZONE_CHANGED** events, need them to toggle back on after an instance
+    self:UnregisterEvent("ZONE_CHANGED")
+    self:UnregisterEvent("ZONE_CHANGED_INDOORS")
+    self:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
 
     self.db.profile.enabled = false
     self:UpdateMMIcon()
@@ -152,10 +146,10 @@ function MyChatAlert:ZONE_CHANGED()
         local _, type = IsInInstance()
         if not type then return end
 
-        if type == "none" then self:OnEnable()
-        else self:OnDisable()
-        end
+        if type ~= "none" then self.db.profile.suspendAlerts = true return end
     end
+
+    self.db.profile.suspendAlerts = false -- always ok to unsuspend alerts if the function hasn't return by now
 end
 
 function MyChatAlert:ZONE_CHANGED_INDOORS() self:ZONE_CHANGED() end
@@ -278,6 +272,7 @@ end
 -------------------------------------------------------------
 
 function MyChatAlert:CheckAlert(event, message, author, authorGUID, channel)
+    if self.db.profile.suspendAlerts then return false, "alerts suspended" end
     if self:AuthorIgnored(TrimRealmName(author)) then return false, "author ignored" end
     if self:MessageIgnored(message, channel) then return false, "message ignored" end
     if self:IsDuplicateMessage(message, TrimRealmName(author)) then return false, "message is duplicate" end
