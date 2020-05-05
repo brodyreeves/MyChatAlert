@@ -1,5 +1,9 @@
 # MyChatAlert
 
+## 2.5.2
+
+- Added a few missing channels to the dropdown
+
 ## 2.5.1.4
 
 - Disabled in instance is now working correctly

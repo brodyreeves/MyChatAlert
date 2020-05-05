@@ -14,6 +14,8 @@ L["Amount of time to ignore duplicate messages for, in seconds (0 to disable)"] 
 L["Author"] = true
 L["Author Color"] = true
 L["Base Text Color"] = true
+L["Battlegound"] = true
+L["Battlegound Leader"] = true
 L["Channel"] = true
 L["Channels"] = true
 L["Chat Frame %i"] = true
@@ -98,6 +100,7 @@ L["Toggle alerts off"] = true
 L["Toggle alerts on"] = true
 L["Triggers"] = true
 L["Where to output printed alerts"] = true
+L["Whisper"] = true
 L["Yell"] = true
 L["You have %s alert"] = "You have |cFF00FF00%s|cFFCFCFCF alert"
 L["You have %s alerts"] = "You have |cFF00FF00%s|cFFCFCFCF alerts"

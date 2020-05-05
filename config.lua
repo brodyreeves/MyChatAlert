@@ -482,6 +482,8 @@ UpdateAvailableChannels = function()
     end
 
     -- standard, non-numbered channels
+    availableChannels[#availableChannels + 1] = L["Battlegound"]
+    availableChannels[#availableChannels + 1] = L["Battlegound Leader"]
     availableChannels[#availableChannels + 1] = L["Guild"]
     availableChannels[#availableChannels + 1] = L["Loot"]
     availableChannels[#availableChannels + 1] = L["Officer"]
@@ -492,6 +494,7 @@ UpdateAvailableChannels = function()
     availableChannels[#availableChannels + 1] = L["Raid Warning"]
     availableChannels[#availableChannels + 1] = L["Say"]
     availableChannels[#availableChannels + 1] = L["System"]
+    availableChannels[#availableChannels + 1] = L["Whisper"]
     availableChannels[#availableChannels + 1] = L["Yell"]
 
     return availableChannels

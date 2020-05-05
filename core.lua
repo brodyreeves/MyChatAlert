@@ -66,6 +66,8 @@ end
 -------------------------------------------------------------
 
 MyChatAlert.eventMap = {
+    [L["Battlegound"]] = "CHAT_MSG_BATTLEGROUND",
+    [L["Battlegound Leader"]] = "CHAT_MSG_BATTLEGROUND_LEADER",
     [L["Guild"]] = "CHAT_MSG_GUILD",
     [L["Loot"]] = "CHAT_MSG_LOOT",
     [L["Officer"]] = "CHAT_MSG_OFFICER",
@@ -76,8 +78,17 @@ MyChatAlert.eventMap = {
     [L["Raid Warning"]] = "CHAT_MSG_RAID_WARNING",
     [L["Say"]] = "CHAT_MSG_SAY",
     [L["System"]] = "CHAT_MSG_SYSTEM",
+    [L["Whisper"]] = "CHAT_MSG_WHISPER",
     [L["Yell"]] = "CHAT_MSG_YELL",
 }
+
+function MyChatAlert:CHAT_MSG_BATTLEGROUND(event, message, author, _, _, _, _, _, _, _, _, _, authorGUID)
+    self:CheckAlert(event, message, author, authorGUID, L["Battleground"])
+end
+
+function MyChatAlert:CHAT_MSG_BATTLEGROUND_LEADER(event, message, author, _, _, _, _, _, _, _, _, _, authorGUID)
+    self:CheckAlert(event, message, author, authorGUID, L["Battleground Leader"])
+end
 
 function MyChatAlert:CHAT_MSG_CHANNEL(event, message, author, _, channel, _, _, _, _, _, _, _, authorGUID)
     if self.db.profile.triggers and self.db.profile.triggers[channel] then
@@ -135,6 +146,10 @@ function MyChatAlert:CHAT_MSG_SYSTEM(event, message)
     if match then
         self:AddAlert(match:sub(1, 12), UnitName("player"), UnitGUID("player"), L["System"], message, coloredMsg) -- :sub() just to help keep display width under control
     end
+end
+
+function MyChatAlert:CHAT_MSG_WHISPER(event, message, author, _, _, _, _, _, _, _, _, _, authorGUID)
+    self:CheckAlert(event, message, author, authorGUID, L["Whisper"])
 end
 
 function MyChatAlert:CHAT_MSG_YELL(event, message, author, _, _, _, _, _, _, _, _, _, authorGUID)
