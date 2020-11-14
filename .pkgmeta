@@ -17,3 +17,5 @@ manual-changelog:
 
 ignore:
     - Addon_Images
+    - test.sh
+    - publish.sh
