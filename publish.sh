@@ -8,7 +8,7 @@ if [ $# -eq 0 ] || [ $# -gt 1 ]; then
 fi
 
 # check first argument (tag name) is valid - v#.#.#r
-if ! [[ "$1" =~ ^(v[1-9][0-9]{0,2})(\.[0-9]{1,3}){2,3}r$ ]]; then
+if ! [[ "$1" =~ ^(v[1-9][0-9]{0,2})(\.[0-9]{1,3}){2,3}$ ]]; then
     echo "Invalid tag name"
     exit
 fi

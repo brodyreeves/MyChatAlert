@@ -1,5 +1,9 @@
 # MyChatAlert
 
+## 2.5.4
+
+- Updating interface number
+
 ## 2.5.3
 
 - Small update to make sure it's working (retail for now, will be checking classic soon)
