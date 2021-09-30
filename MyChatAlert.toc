@@ -1,9 +1,6 @@
-#@retail@
-## Interface: 90002
-#@end-retail@
-#@non-retail@
-# ## Interface: 11305
-#@end-non-retail@
+## Interface-Classic: 11307
+## Interface-BCC: 20502
+## Interface-Retail: 90100
 ## Title: My Chat Alert
 ## Version: @project-version@
 ## Notes: Alerts based on keywords in chat channels

@@ -1,5 +1,9 @@
 # MyChatAlert
 
+## 2.5.5
+
+- Updating interface number and supporting bcc
+
 ## 2.5.4
 
 - Updating interface number
