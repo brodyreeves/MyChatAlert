@@ -1,4 +1,4 @@
-# MyChatAlert
+# [Abandoned] MyChatAlert
 
 Alerts the player when designated keywords are found in specified chat channels
 
@@ -111,10 +111,6 @@ Download it and install as a typical wow addon. Customization can be found in th
 ## Missing Localization
 
 If you want to help translate the addon to your locale, you can view what phrases are missing on [Curseforge][curseforge localization link]
-
-## Support the Dev
-
-Donation info was requested, so I added it to the Curseforge project. The side panel has a button with this [PayPal][paypal link] link, or you can also use [Venmo][venmo link] if you prefer that
 
 [alert frame pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/v2.5.0/Addon_Images/ss-alert-frame.png "Alert Frame"
 [chat alert pic]: https://raw.githubusercontent.com/brodyreeves/MyChatAlert/v2.5.0/Addon_Images/ss-chat-alert.png "Printed Alert"
